@@ -1,39 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
-
-
 :root {
   --transition: all 300ms linear;
   --bright-blue: hsl(220, 98%, 61%);
@@ -86,7 +50,7 @@ img {
   color: var(--Light-grayish-blue);
 }
 .main.light .banner__wrapper {
-  background-image: url("/images/bg-desktop-light.jpg");
+  background-image: url("/public/images/bg-desktop-light.jpg");
 }
 /* End of light theme */
 .main {
@@ -97,7 +61,7 @@ img {
   transition: var(--transition);
 }
 .banner__wrapper {
-  background-image: url("/images/bg-desktop-dark.jpg");
+  background-image: url("/public/images/bg-desktop-dark.jpg");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   height: 30vh;
@@ -316,9 +280,9 @@ del {
 
 @media screen and (max-width: 620px) {
   .main .banner__wrapper {
-    background-image: url(/images/bg-mobile-dark.jpg);
+    background-image: url(/public/images/bg-mobile-dark.jpg);
   }
   .main.light .banner__wrapper {
-    background-image: url(/images/bg-mobile-light.jpg);
+    background-image: url(/public/images/bg-mobile-light.jpg);
   }
 }
