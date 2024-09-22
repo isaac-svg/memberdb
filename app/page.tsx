@@ -1,131 +1,98 @@
-"use client"
-import React, {
-  FormEvent,
-  MouseEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { Todo } from "./models/Todo";
-import { Header } from "./components/Header";
-import TodoForm from "./components/TodoForm";
-import TodoComponent from "./components/TodoComponent";
-import TodoInfo from "./components/TodoInfo";
+"use client";
+import React from "react";
+import { Pie } from "react-chartjs-2";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Label,
+  LabelList,
+  Line,
+  LineChart,
+  PolarAngleAxis,
+  RadialBar,
+  RadialBarChart,
+  Rectangle,
+  ReferenceLine,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  CalendarIcon,
+  UserPlusIcon,
+  DownloadIcon,
+  SearchIcon,
+  LucideProps,
+} from "lucide-react";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import WeeklyStat from "@/components/sections/weekly-stat";
+import MonthlyStat from "@/components/sections/monthly-stat";
+import ServiceStat from "@/components/sections/service-stat";
 
-const App = () => {
-  const taskRef = useRef<HTMLInputElement>(null);
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [allowSave, setAllowSave] = useState<boolean>(false);
-  const [lightTheme, setLigthTheme] = useState(false);
-  // gets and set todos from local storage
-  useEffect(() => {
-    let localTodos: string | null = localStorage.getItem("todos");
-    let theme: string = localStorage.getItem("todoTheme") || "true";
-    if (!localTodos) {
-      let emptyTodos: Todo[] = [];
-      setTodos(emptyTodos);
-      return;
-    }
-    setLigthTheme(JSON.parse(theme));
-    setTodos(JSON.parse(localTodos));
-  }, []);
+export default function Dashboard() {
+  const currentDate = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const currentTime = new Date().toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
-  // set Todos to localStorage
-  useEffect(() => {
-    localStorage.setItem("todoTheme", JSON.stringify(lightTheme));
-  }, [lightTheme]);
-  const populateTodo = (e: FormEvent) => {
-    e.preventDefault();
-    if (!taskRef.current!.value) {
-      return;
-    }
-    const task = {
-      id: Date.now(),
-      completed: false,
-      content: taskRef.current!.value,
-    };
-    setTodos((prevState) => {
-      // setAllowSave(!allowSave);
-
-      return [...prevState, task];
-    });
-    localStorage.setItem("todos", JSON.stringify(todos));
-
-    taskRef.current!.value = "";
-    taskRef.current!.focus();
-  };
-  const deleteTodo = (e: MouseEvent) => {
-    const elem = e.target as HTMLImageElement;
-    const id = elem.dataset.id!;
-    const newTodos = todos.filter((todo) => todo.id !== parseInt(id));
-
-    setTodos(newTodos);
-    localStorage.setItem("todos", JSON.stringify(newTodos));
-  };
-  const handleComplete = (id: number): void => {
-    let completedTodos: Todo[] = [];
-    const modifiedTodo = todos.filter((todo) => {
-      if (todo.id === id) {
-        todo.completed = !todo.completed;
-      }
-
-      return todo;
-    });
-    completedTodos = modifiedTodo.filter((todo) => todo.completed === true);
-    localStorage.setItem("completedTodos", JSON.stringify(completedTodos));
-    setTodos(modifiedTodo);
-  };
-  const clearCompleted = () => {
-    const newTodos = todos.filter((todo) => todo.completed === false);
-    setTodos(newTodos);
-    localStorage.setItem("completedTodos", JSON.stringify(newTodos));
-  };
-  const getAllTodos = () => {
-    const localTodos = localStorage.getItem("todos")!;
-    const allTodos = JSON.parse(localTodos);
-    setTodos(allTodos);
-  };
-  const getCompleted = () => {
-    const allTodos = JSON.parse(localStorage.getItem("completedTodos")!);
-    setTodos(allTodos);
-  };
-  const getActive = () => {
-    const allTodos = todos.filter((todo) => todo.completed === true);
-    // setTodos(allTodos);
-  };
-  //  change theme
-
-  const toggleTheme = () => {
-    setLigthTheme(!lightTheme);
-  };
   return (
-    <main className={`main ${lightTheme && "light"}`}>
-      <div className="banner__wrapper"></div>
-      <Link href={"/folder"}>Upload</Link>
-      <div id="section">
-        {/* Todo Component */}
-        <div className="todo__component">
-          <Header lightTheme={lightTheme} toggleTheme={toggleTheme} />
-          <TodoForm taskRef={taskRef} populateTodo={populateTodo} />
-          <TodoComponent
-            todos={todos}
-            handleComplete={handleComplete}
-            deleteTodo={deleteTodo}
-            setTodos={setTodos}
-          />
-          <TodoInfo
-            getAllTodos={getAllTodos}
-            getCompleted={getCompleted}
-            getActive={getActive}
-            clearCompleted={clearCompleted}
-            todos={todos}
-          />
+    <div className="min-h-screen bg-muted/40 p-8 first-line:">
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold text-muted-foreground mb-2">
+            Welcome, Admin
+          </h1>
+          <p className="text-gray-600">
+            {currentDate} | {currentTime}
+          </p>
+        </header>
+        <div className="flex w-full  gap-3  justify-end my-4 border-b-background border-b-[1px] py-3 ">
+          <Link href={"/register-member"}>
+            <Button className="gap-2">
+              Add Member <UserPlusIcon size={18} />
+            </Button>
+          </Link>
+          <Link href={"/export-data"}>
+            <Button className="gap-2">
+              Export Data <DownloadIcon size={18} />
+            </Button>
+          </Link>
+          <>
+            <Button className="gap-2">
+              Calender <CalendarIcon size={18} />
+            </Button>
+          </>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <WeeklyStat />
+          <MonthlyStat />
+          <ServiceStat />
         </div>
       </div>
-      <span className="info__draggable"> Drag and drop to reorder list</span>
-    </main>
+    </div>
   );
-};
-
-export default App;
+}
