@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import { Toaster } from "@/components/ui/toaster";
 import {
   Bell,
   CircleUser,
@@ -50,14 +51,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.className} max-w-[100vw]`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <div className=" sticky grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+          <Toaster />
+          <main className=" sticky grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
             <div className="hidden border-r bg-muted/40 md:block">
               <div className="flex h-full max-h-screen flex-col gap-2">
                 <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
@@ -132,7 +134,7 @@ export default function RootLayout({
                       className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                     >
                       <LineChart className="h-4 w-4" />
-                      Register
+                      Add Admin
                     </Link>
                   </nav>
                 </div>
@@ -154,8 +156,8 @@ export default function RootLayout({
                 </div>
               </div>
             </div>
-            <div className="flex flex-col">
-              <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+            <div className="flex flex-col w-full overflow-x-auto">
+              <header className="  w-full flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button
@@ -269,7 +271,7 @@ export default function RootLayout({
               </header>
               {children}
             </div>
-          </div>
+          </main>
         </ThemeProvider>
       </body>
     </html>

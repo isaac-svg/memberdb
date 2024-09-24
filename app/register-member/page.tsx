@@ -16,17 +16,50 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/hooks/use-toast";
 
 type Props = {};
 
 const page = (props: Props) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      // id: "10",
+      // bibleStudyGroup: "grace",
+      // role: "member",
+      name: "Efua Addo",
+      dob: "1975-09-14",
+      gender: "Female",
+      cell: "Joy",
+      residentialAddress: "GA-183-456",
+      mobile: "0234455667",
+      maritalStatus: "Married",
+      spouseName: "Kwame Addo",
+      numberOfChildren: "5",
+      numberOfOtherHouseholdMembers: "2",
+      occupation: "Chef",
+      contactPerson: "Ama Addo",
+      Remarks: "Cooks for the church",
+      ghanaCardID: "GHA-778899001-1",
+      // picture: "https://example.com/photo10.jpg",
+    },
   });
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("values");
     console.log(values);
+    toast({
+      title: "You submitted the following values:",
+      description: (
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
+        </pre>
+      ),
+    });
   }
+
+  const { toast } = useToast();
 
   return (
     <section className="p-6">
@@ -253,7 +286,106 @@ const page = (props: Props) => {
                   <FormItem className="w-full">
                     <FormLabel>Contact Person</FormLabel>
                     <FormControl>
-                      <Input placeholder="Love" {...field} />
+                      <Textarea
+                        placeholder="John Peter is my father and you can contatc him on 0244444444"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription></FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex gap-2 w-full flex-col sm:flex-row">
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Role</FormLabel>
+                    <FormControl>
+                      {/* <Input placeholder="Deacon" {...field} /> */}
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-1"
+                      >
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="elder" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Elder</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="deacon" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Deacon</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="member" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Member</FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormDescription></FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="bibleStudyGroup"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Bible Study Group</FormLabel>
+                    <FormControl>
+                      {/* <Input placeholder="Deacon" {...field} /> */}
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-1"
+                      >
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="joy" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Joy</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="love" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Love</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="peace" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Peace</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="hope" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Hope</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="grace" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Grace</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="grace" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Grace</FormLabel>
+                        </FormItem>
+                      </RadioGroup>
                     </FormControl>
                     <FormDescription></FormDescription>
                     <FormMessage />

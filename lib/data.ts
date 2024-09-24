@@ -1,10 +1,13 @@
 import formSchema from "@/schema/form";
 import { z } from "zod";
 
-export type Person = z.infer<typeof formSchema>;
+export type Person = z.infer<typeof formSchema> & { id: string };
 
 export const people: Person[] = [
   {
+    id: "1",
+    bibleStudyGroup: "grace",
+    role: "member",
     name: "Isaac Kwabena",
     dob: "1985-04-15",
     gender: "Male",
@@ -12,7 +15,7 @@ export const people: Person[] = [
     residentialAddress: "GA-183-456",
     mobile: "0591234567",
     maritalStatus: "Married",
-    spouseName: "Grace Kwabena",
+    spouseName: "grace Kwabena",
     numberOfChildren: "3",
     numberOfOtherHouseholdMembers: "1",
     occupation: "Engineer",
@@ -22,6 +25,9 @@ export const people: Person[] = [
     picture: "https://example.com/photo1.jpg",
   },
   {
+    id: "2",
+    bibleStudyGroup: "grace",
+    role: "member",
     name: "Adwoa Agyeman",
     dob: "1990-08-21",
     gender: "Female",
@@ -39,6 +45,9 @@ export const people: Person[] = [
     picture: "https://example.com/photo2.jpg",
   },
   {
+    id: "3",
+    bibleStudyGroup: "grace",
+    role: "member",
     name: "Kwame Opoku",
     dob: "1979-11-02",
     gender: "Male",
@@ -56,6 +65,9 @@ export const people: Person[] = [
     picture: "https://example.com/photo3.jpg",
   },
   {
+    id: "4",
+    bibleStudyGroup: "grace",
+    role: "member",
     name: "Abena Mensah",
     dob: "1988-05-17",
     gender: "Female",
@@ -73,10 +85,13 @@ export const people: Person[] = [
     picture: "https://example.com/photo4.jpg",
   },
   {
+    id: "5",
+    bibleStudyGroup: "grace",
+    role: "member",
     name: "Yaw Asante",
     dob: "1995-12-12",
     gender: "Male",
-    cell: "Grace",
+    cell: "grace",
     residentialAddress: "GA-183-456",
     mobile: "0593344556",
     maritalStatus: "Single",
@@ -90,6 +105,9 @@ export const people: Person[] = [
     picture: "https://example.com/photo5.jpg",
   },
   {
+    id: "6",
+    bibleStudyGroup: "grace",
+    role: "member",
     name: "Akosua Osei",
     dob: "1982-02-14",
     gender: "Female",
@@ -107,6 +125,9 @@ export const people: Person[] = [
     picture: "https://example.com/photo6.jpg",
   },
   {
+    id: "7",
+    bibleStudyGroup: "grace",
+    role: "member",
     name: "Kofi Amankwah",
     dob: "1987-03-23",
     gender: "Male",
@@ -124,6 +145,9 @@ export const people: Person[] = [
     picture: "https://example.com/photo7.jpg",
   },
   {
+    id: "8",
+    bibleStudyGroup: "grace",
+    role: "member",
     name: "Ama Kwarteng",
     dob: "1992-06-09",
     gender: "Female",
@@ -141,6 +165,9 @@ export const people: Person[] = [
     picture: "https://example.com/photo8.jpg",
   },
   {
+    id: "9",
+    bibleStudyGroup: "grace",
+    role: "member",
     name: "Kwabena Nkrumah",
     dob: "1984-11-30",
     gender: "Male",
@@ -158,6 +185,9 @@ export const people: Person[] = [
     picture: "https://example.com/photo9.jpg",
   },
   {
+    id: "10",
+    bibleStudyGroup: "grace",
+    role: "member",
     name: "Efua Addo",
     dob: "1975-09-14",
     gender: "Female",

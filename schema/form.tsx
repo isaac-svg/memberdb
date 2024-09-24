@@ -23,9 +23,7 @@ const formSchema = z.object({
     .regex(
       /^[A-Z]{2}-\d{3,4}-\d{3,4}$/,
       "Residential address must be a valid GhanaPost GPS address (e.g., GA-183-4567)"
-    )
-    .min(11, "Residential address must be at least 11 characters") // Minimum length of the valid GPS format
-    .max(50, "Residential address must be at most 50 characters"),
+    ),
   mobile: z
     .string({ required_error: "Mobile number is required" })
     .regex(
@@ -69,6 +67,10 @@ const formSchema = z.object({
     ),
 
   picture: z.any(),
+  role: z.enum(["elder", "member", "deacon"], {
+    required_error: "Gender is required",
+  }),
+  bibleStudyGroup: z.enum(["love", "grace", "peace", "hope", "mercy", "joy"]),
 });
 
 export default formSchema;
