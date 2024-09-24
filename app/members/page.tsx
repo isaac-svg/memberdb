@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -32,12 +33,34 @@ import DataTable from "@/components/tables/user-table";
 import { people } from "@/lib/data";
 import { columns } from "@/components/tables/column";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db, Member } from "@/models/db";
+import { useRouter } from "next/navigation";
 
-type Props = {};
+type Props = {
+  // params: {id :string}
+};
 const getData = () => people;
 
-const page = (props: Props) => {
-  const data = getData();
+const page = (prop: Props) => {
+  const members = useLiveQuery(() => db.chmembers.toArray());
+  const count = useLiveQuery(() => db.chmembers.count());
+
+  const [data, setData] = useState<Member[] | undefined>([]);
+  useEffect(() => {
+    // setData(members);
+    console.log(members, "members");
+    console.log(data, "data");
+    console.log(count, "count ");
+    !(async () => {
+      console.log(setData(await db.chmembers.toArray()), "PROMM");
+    })();
+  }, []);
+
+  if (!data?.length) return "Empty";
+  const {} = useRouter();
+
+  const [member, setMember] = useState<Member | undefined>(undefined);
   return (
     <>
       <Tabs defaultValue="adult" className="p-6">
@@ -85,7 +108,7 @@ const page = (props: Props) => {
           </div>
         </div>
         <TabsContent value="adult" className="">
-          <DataTable columns={columns} data={people} />
+          <DataTable columns={columns} data={data} />
         </TabsContent>
       </Tabs>
     </>

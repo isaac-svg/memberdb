@@ -19,6 +19,9 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/hooks/use-toast";
+import { useState } from "react";
+import { db } from "@/models/db";
+import { useLiveQuery } from "dexie-react-hooks";
 
 type Props = {};
 
@@ -46,9 +49,26 @@ const page = (props: Props) => {
       // picture: "https://example.com/photo10.jpg",
     },
   });
+  const members = useLiveQuery(() => db.chmembers.toArray());
+
+  async function addMember(values: z.infer<typeof formSchema>) {
+    try {
+      // Add the new friend!
+      const nen = await db.chmembers.add({
+        ...values,
+      });
+      console.log({ ...values }, "VALUES");
+      console.log(nen, "-", members);
+    } catch (error) {
+      // setStatus(`Failed to add ${name}: ${error}`);
+    }
+  }
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("values");
     console.log(values);
+
+    addMember(values);
+
     toast({
       title: "You submitted the following values:",
       description: (
@@ -60,6 +80,14 @@ const page = (props: Props) => {
   }
 
   const { toast } = useToast();
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImagePreview(URL.createObjectURL(file)); // Preview the image
+    }
+  };
 
   return (
     <section className="p-6">

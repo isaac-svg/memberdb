@@ -16,8 +16,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Member } from "@/models/db";
 
-export const columns: ColumnDef<Person>[] = [
+export const columns: ColumnDef<Member>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -130,7 +131,9 @@ export const columns: ColumnDef<Person>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(member.mobile)}
+              onClick={() =>
+                member?.mobile && navigator.clipboard.writeText(member?.mobile)
+              }
             >
               Copy mobile number
             </DropdownMenuItem>

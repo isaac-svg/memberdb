@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { copyFile, BaseDirectory } from "@tauri-apps/api/fs";
 
@@ -20,34 +20,79 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { db, Member } from "@/models/db";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const page = (props: Props) => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "Isaac Kwabena",
-      dob: "1985-04-15",
-      gender: "Male",
-      cell: "Faith",
-      residentialAddress: "GA-183-456",
-      mobile: "0591234567",
-      maritalStatus: "Married",
-      spouseName: "Grace Kwabena",
-      numberOfChildren: "3",
-      numberOfOtherHouseholdMembers: "1",
-      occupation: "Engineer",
-      contactPerson: "Kofi Mensah",
-      Remarks: "Faithful member",
-      ghanaCardID: "GHA-123456789-1",
-      picture: "https://example.com/photo1.jpg",
-    },
-  });
   const [file, setFile] = useState();
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("values");
     console.log(values, file);
   }
   const [disabled, setDisAbled] = useState<boolean>(true);
+  const [member, setMember] = useState<Member | undefined>(undefined);
+  // const { id } = router.query;
+  const searchParams = useSearchParams();
+  const ID = searchParams.get("id");
+  console.log(ID, "ID");
+
+  type idType = string | number | symbol;
+  type memberData = Partial<Member>;
+  // const data: memberData = member!;
+  const others = member!;
+  console.log(others);
+  const [defaulVal, setDefaultVal] = useState<Member>({
+    bibleStudyGroup: "grace",
+    name: "",
+    cell: "",
+    contactPerson: "",
+    dob: "",
+    gender: "F",
+    ghanaCardID: "",
+    id: 1,
+    maritalStatus: "",
+    mobile: "",
+    numberOfChildren: "",
+    numberOfOtherHouseholdMembers: "",
+    occupation: "",
+    Remarks: "",
+    residentialAddress: "",
+    role: "deacon",
+    spouseName: "",
+  });
+  useEffect(() => {
+    setDefaultVal(others);
+    console.log("2");
+  }, [others]);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: defaulVal,
+  });
+
+  const { reset } = form;
+
+  useEffect(() => {
+    if (ID) {
+      const fetchMember = async () => {
+        try {
+          const memberData = await db.chmembers.get(Number(ID));
+          setMember(memberData);
+          console.log(memberData);
+
+          // Reset the form values with the fetched member data
+          if (memberData) {
+            reset(memberData);
+          }
+        } catch (error) {
+          console.error("Failed to fetch member:", error);
+        }
+      };
+      fetchMember();
+    }
+  }, [ID, reset]);
+  if (!ID) return "EMPTY";
+
+  console.log("data", others);
   return (
     <section className="w-full mr-auto">
       <div className="flex justify-between items-center border-b  px-4 py-2">
@@ -67,11 +112,13 @@ const page = (props: Props) => {
           <div className="flex items-center gap-3">
             <Avatar className=" w-20 h-20">
               <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>IS</AvatarFallback>
+              <AvatarFallback>
+                {defaulVal?.name?.slice(0, 2).toLocaleUpperCase()}
+              </AvatarFallback>
             </Avatar>
             <div>
-              <p>Isaac Sakyi</p>
-              <p>GA-183-456</p>
+              <p>{defaulVal?.name}</p>
+              <p>{defaulVal?.residentialAddress}</p>
             </div>
           </div>
           <Button
@@ -95,6 +142,7 @@ const page = (props: Props) => {
               <div className="flex gap-2 w-full flex-col sm:flex-row">
                 <FormField
                   disabled={disabled}
+                  defaultValue={others?.name}
                   control={form.control}
                   name="name"
                   render={({ field }) => (
@@ -112,6 +160,7 @@ const page = (props: Props) => {
                 />
                 <FormField
                   disabled={disabled}
+                  defaultValue={others?.dob}
                   control={form.control}
                   name="dob"
                   render={({ field }) => (
@@ -129,6 +178,7 @@ const page = (props: Props) => {
               <div className="flex gap-2 w-full flex-col sm:flex-row">
                 <FormField
                   disabled={disabled}
+                  defaultValue={others?.gender}
                   control={form.control}
                   name="gender"
                   render={({ field }) => (
@@ -144,6 +194,7 @@ const page = (props: Props) => {
                 />
                 <FormField
                   disabled={disabled}
+                  defaultValue={others?.mobile}
                   control={form.control}
                   name="mobile"
                   render={({ field }) => (
@@ -162,6 +213,7 @@ const page = (props: Props) => {
                 <FormField
                   control={form.control}
                   disabled={disabled}
+                  defaultValue={others?.residentialAddress}
                   name="residentialAddress"
                   render={({ field }) => (
                     <FormItem className="w-full">
@@ -177,6 +229,7 @@ const page = (props: Props) => {
                 <FormField
                   control={form.control}
                   disabled={disabled}
+                  defaultValue={others?.name}
                   name="occupation"
                   render={({ field }) => (
                     <FormItem className="w-full">
@@ -194,6 +247,7 @@ const page = (props: Props) => {
                 <FormField
                   control={form.control}
                   disabled={disabled}
+                  defaultValue={others?.name}
                   name="maritalStatus"
                   render={({ field }) => (
                     <FormItem className="w-full">
@@ -209,6 +263,7 @@ const page = (props: Props) => {
                 <FormField
                   control={form.control}
                   disabled={disabled}
+                  defaultValue={others?.name}
                   name="spouseName"
                   render={({ field }) => (
                     <FormItem className="w-full">
@@ -226,6 +281,7 @@ const page = (props: Props) => {
                 <FormField
                   control={form.control}
                   disabled={disabled}
+                  defaultValue={others?.name}
                   name="numberOfChildren"
                   render={({ field }) => (
                     <FormItem className="w-full">
@@ -241,6 +297,7 @@ const page = (props: Props) => {
                 <FormField
                   control={form.control}
                   disabled={disabled}
+                  defaultValue={others?.name}
                   name="numberOfOtherHouseholdMembers"
                   render={({ field }) => (
                     <FormItem className="w-full">
@@ -258,6 +315,7 @@ const page = (props: Props) => {
                 <FormField
                   control={form.control}
                   disabled={disabled}
+                  defaultValue={others?.name}
                   name="ghanaCardID"
                   render={({ field }) => (
                     <FormItem className="w-full">
@@ -273,6 +331,7 @@ const page = (props: Props) => {
                 <FormField
                   control={form.control}
                   disabled={disabled}
+                  defaultValue={others?.name}
                   name="picture"
                   render={({ field }) => (
                     <FormItem className="w-full">
@@ -282,6 +341,7 @@ const page = (props: Props) => {
                           type="file"
                           accept=".jpg, .jpeg, .png"
                           disabled={disabled}
+                          defaultValue={others?.name}
                           // value={file}
                           // onChange={(e)=> setFile(e.target.value as unknown)}
                           // placeholder="GHA-XXXXXXXXX-X"
@@ -298,6 +358,7 @@ const page = (props: Props) => {
                 <FormField
                   control={form.control}
                   disabled={disabled}
+                  defaultValue={others?.name}
                   name="cell"
                   render={({ field }) => (
                     <FormItem className="w-full">
@@ -313,6 +374,7 @@ const page = (props: Props) => {
                 <FormField
                   control={form.control}
                   disabled={disabled}
+                  defaultValue={others?.name}
                   name="contactPerson"
                   render={({ field }) => (
                     <FormItem className="w-full">
@@ -330,6 +392,7 @@ const page = (props: Props) => {
                 <FormField
                   control={form.control}
                   disabled={disabled}
+                  defaultValue={others?.name}
                   name="Remarks"
                   render={({ field }) => (
                     <FormItem className="w-full">

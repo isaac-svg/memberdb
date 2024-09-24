@@ -90,7 +90,7 @@ export default function DataTable<TData, TValue>({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {table
-                .getAllColumns()
+                ?.getAllColumns()
                 .filter((column) => column.getCanHide())
                 .map((column) => {
                   return (
@@ -109,17 +109,17 @@ export default function DataTable<TData, TValue>({
             </DropdownMenuContent>
           </DropdownMenu>
           <div className="flex-1 text-sm text-muted-foreground">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {/* {table?.getFilteredSelectedRowModel()?.rows?.length} of{" "} */}
+            {/* {table?.getFilteredRowModel()?.rows?.length} row(s) selected. */}
           </div>
         </div>
       </div>
 
       <Table>
         <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
+          {table?.getHeaderGroups()?.map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
+              {headerGroup?.headers?.map((header) => {
                 return (
                   <TableHead key={header.id}>
                     {header.isPlaceholder
@@ -135,8 +135,8 @@ export default function DataTable<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
+          {table?.getRowModel()?.rows?.length ? (
+            table?.getRowModel()?.rows?.map((row) => (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}

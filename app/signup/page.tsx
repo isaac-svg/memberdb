@@ -11,10 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export const description =
-  "A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account";
-
-export function LoginForm() {
+const SignUpForm = () => {
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader>
@@ -64,4 +61,6 @@ export function LoginForm() {
       </CardContent>
     </Card>
   );
-}
+};
+
+export default SignUpForm;
