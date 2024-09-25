@@ -1,446 +1,447 @@
-"use client";
-import React, { Suspense, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import {
+  Activity,
+  ArrowUpRight,
+  CircleUser,
+  CreditCard,
+  DollarSign,
+  Menu,
+  Package2,
+  Search,
+  Users,
+} from "lucide-react";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormDescription,
-} from "@/components/ui/form";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import formSchema from "@/schema/form";
-import { FormProvider, useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { db, Member } from "@/models/db";
-import { useSearchParams } from "next/navigation";
-import { printMember } from "@/components/sections/member-print";
-import { convertImageToBase64 } from "@/lib/functions";
-import { useToast } from "@/components/hooks/use-toast";
-import { useLiveQuery } from "dexie-react-hooks";
-import { Textarea } from "./ui/textarea";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-const MemberPage = () => {
-  const searchParams = useSearchParams();
-  const ID = searchParams.get("id");
-  const [disabled, setDisabled] = useState<boolean>(true);
-  const [image, setImage] = useState<File | undefined>(undefined);
-  const fileRef = useRef<HTMLInputElement | null>(null);
-  const { toast } = useToast();
+export const description =
+  "An application shell with a header and main content area. The header has a navbar, a search input and and a user nav dropdown. The user nav is toggled by a button with an avatar image. The main content area is divided into two rows. The first row has a grid of cards with statistics. The second row has a grid of cards with a table of recent transactions and a list of recent sales.";
 
-  const [defaulVal, setDefaultVal] = useState<Member>({
-    bibleStudyGroup: "grace",
-    name: "",
-    cell: "",
-    contactPerson: "",
-    dob: "",
-    gender: "F",
-    ghanaCardID: "",
-    id: 1,
-    maritalStatus: "",
-    mobile: "",
-    numberOfChildren: "",
-    numberOfOtherHouseholdMembers: "",
-    occupation: "",
-    Remarks: "",
-    residentialAddress: "",
-    role: "deacon",
-    spouseName: "",
-  });
-
-  const member = useLiveQuery(
-    () => db.table("chmembers").get(Number(ID)),
-    [ID]
-  );
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: defaulVal,
-  });
-
-  const { reset } = form;
-
-  useEffect(() => {
-    if (member) {
-      reset(member);
-    }
-  }, [member, reset]);
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (image) {
-      const base64String = await convertImageToBase64(image);
-      await db
-        .table("chmembers")
-        .update(Number(ID), { ...values, picture: base64String });
-    } else {
-      await db.table("chmembers").update(Number(ID), values);
-    }
-    toast({
-      title: "Member updated successfully",
-      description: "Changes have been saved.",
-    });
-  };
-
-  if (!member) return <div>Loading...</div>;
-
+export function Dashboard() {
   return (
-    <section className="w-full mr-auto">
-      <div className="flex justify-between items-center border-b px-4 py-2">
-        <Button variant="outline">Member Details</Button>
-        <Button variant="outline" onClick={() => setDisabled(!disabled)}>
-          {disabled ? "Edit" : "Cancel"}
-        </Button>
-      </div>
-      <div className="mx-auto mt-6 w-full max-w-xl">
-        <div className="flex gap-3 p-2 rounded-sm items-center border">
-          <Avatar className="w-20 h-20">
-            <AvatarImage src={member?.picture ?? "/images/placeholder.svg"} />
-            <AvatarFallback>
-              {member?.name?.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p>{member?.name}</p>
-            <p>{member?.residentialAddress}</p>
-          </div>
-        </div>
-
-        <FormProvider {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-4 mx-auto py-8 px-4"
+    <div className="flex min-h-screen w-full flex-col">
+      <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
+        <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
+          <Link
+            href="#"
+            className="flex items-center gap-2 text-lg font-semibold md:text-base"
           >
-            <div className="flex gap-2">
-              <FormField
-                name="name"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Isaac Sakyi"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="dob"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date of Birth</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="2024-09-22"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="flex gap-2">
-              <FormField
-                name="gender"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Gender</FormLabel>
-                    <FormControl>
-                      <Input placeholder="M/F" disabled={disabled} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="mobile"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="0591514584"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="flex gap-2">
-              <FormField
-                name="residentialAddress"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Residential Address</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="GA-183-456"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="occupation"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Occupation</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Farmer"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            <Package2 className="h-6 w-6" />
+            <span className="sr-only">Acme Inc</span>
+          </Link>
+          <Link
+            href="#"
+            className="text-foreground transition-colors hover:text-foreground"
+          >
+            Dashboard
+          </Link>
+          <Link
+            href="#"
+            className="text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Orders
+          </Link>
+          <Link
+            href="#"
+            className="text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Products
+          </Link>
+          <Link
+            href="#"
+            className="text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Customers
+          </Link>
+          <Link
+            href="#"
+            className="text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Analytics
+          </Link>
+        </nav>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="shrink-0 md:hidden"
+            >
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle navigation menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left">
+            <nav className="grid gap-6 text-lg font-medium">
+              <Link
+                href="#"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <Package2 className="h-6 w-6" />
+                <span className="sr-only">Acme Inc</span>
+              </Link>
+              <Link href="#" className="hover:text-foreground">
+                Dashboard
+              </Link>
+              <Link
+                href="#"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Orders
+              </Link>
+              <Link
+                href="#"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Products
+              </Link>
+              <Link
+                href="#"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Customers
+              </Link>
+              <Link
+                href="#"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Analytics
+              </Link>
+            </nav>
+          </SheetContent>
+        </Sheet>
+        <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
+          <form className="ml-auto flex-1 sm:flex-initial">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search products..."
+                className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
               />
             </div>
-
-            <div className="flex gap-2">
-              <FormField
-                name="maritalStatus"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Marital Status</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Married/Single"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="spouseName"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Spouse Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Raymond Smith"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="flex gap-2">
-              <FormField
-                name="numberOfChildren"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Number of Children</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="2"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="numberOfOtherHouseholdMembers"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Other Household Members</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="2"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="flex gap-2">
-              <FormField
-                name="ghanaCardID"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ghana Card ID</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="GHA-XXXXXXXXX-X"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="picture"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Upload Photo</FormLabel>
-                    <FormControl>
-                      <input
-                        type="file"
-                        accept=".jpg, .jpeg, .png"
-                        ref={fileRef}
-                        disabled={disabled}
-                        onChange={(e) => setImage(e.target?.files?.[0])}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="flex gap-2">
-              <FormField
-                name="contactPerson"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact Person</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Jordan Paul is my uncle and you can reach out him om 02444444444444"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="cell"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cell</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Love"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="flex gap-2">
-              <FormField
-                name="role"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Role</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Member"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="bibleStudyGroup"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bible Study Group</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Grace"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex gap-2">
-              <FormField
-                name="Remarks"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Remarks</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="No remarks"
-                        disabled={disabled}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {!disabled && <Button type="submit">Update</Button>}
           </form>
-        </FormProvider>
-      </div>
-    </section>
-  );
-};
-
-export default function MemberPageWrapper() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <MemberPage />
-    </Suspense>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="icon" className="rounded-full">
+                <CircleUser className="h-5 w-5" />
+                <span className="sr-only">Toggle user menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </header>
+      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+          <Card x-chunk="dashboard-01-chunk-0">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Revenue
+              </CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">$45,231.89</div>
+              <p className="text-xs text-muted-foreground">
+                +20.1% from last month
+              </p>
+            </CardContent>
+          </Card>
+          <Card x-chunk="dashboard-01-chunk-1">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Subscriptions
+              </CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">+2350</div>
+              <p className="text-xs text-muted-foreground">
+                +180.1% from last month
+              </p>
+            </CardContent>
+          </Card>
+          <Card x-chunk="dashboard-01-chunk-2">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Sales</CardTitle>
+              <CreditCard className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">+12,234</div>
+              <p className="text-xs text-muted-foreground">
+                +19% from last month
+              </p>
+            </CardContent>
+          </Card>
+          <Card x-chunk="dashboard-01-chunk-3">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Now</CardTitle>
+              <Activity className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">+573</div>
+              <p className="text-xs text-muted-foreground">
+                +201 since last hour
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+          <Card className="xl:col-span-2" x-chunk="dashboard-01-chunk-4">
+            <CardHeader className="flex flex-row items-center">
+              <div className="grid gap-2">
+                <CardTitle>Transactions</CardTitle>
+                <CardDescription>
+                  Recent transactions from your store.
+                </CardDescription>
+              </div>
+              <Button asChild size="sm" className="ml-auto gap-1">
+                <Link href="#">
+                  View All
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Customer</TableHead>
+                    <TableHead className="hidden xl:table-column">
+                      Type
+                    </TableHead>
+                    <TableHead className="hidden xl:table-column">
+                      Status
+                    </TableHead>
+                    <TableHead className="hidden xl:table-column">
+                      Date
+                    </TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>
+                      <div className="font-medium">Liam Johnson</div>
+                      <div className="hidden text-sm text-muted-foreground md:inline">
+                        liam@example.com
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden xl:table-column">
+                      Sale
+                    </TableCell>
+                    <TableCell className="hidden xl:table-column">
+                      <Badge className="text-xs" variant="outline">
+                        Approved
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
+                      2023-06-23
+                    </TableCell>
+                    <TableCell className="text-right">$250.00</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      <div className="font-medium">Olivia Smith</div>
+                      <div className="hidden text-sm text-muted-foreground md:inline">
+                        olivia@example.com
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden xl:table-column">
+                      Refund
+                    </TableCell>
+                    <TableCell className="hidden xl:table-column">
+                      <Badge className="text-xs" variant="outline">
+                        Declined
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
+                      2023-06-24
+                    </TableCell>
+                    <TableCell className="text-right">$150.00</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      <div className="font-medium">Noah Williams</div>
+                      <div className="hidden text-sm text-muted-foreground md:inline">
+                        noah@example.com
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden xl:table-column">
+                      Subscription
+                    </TableCell>
+                    <TableCell className="hidden xl:table-column">
+                      <Badge className="text-xs" variant="outline">
+                        Approved
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
+                      2023-06-25
+                    </TableCell>
+                    <TableCell className="text-right">$350.00</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      <div className="font-medium">Emma Brown</div>
+                      <div className="hidden text-sm text-muted-foreground md:inline">
+                        emma@example.com
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden xl:table-column">
+                      Sale
+                    </TableCell>
+                    <TableCell className="hidden xl:table-column">
+                      <Badge className="text-xs" variant="outline">
+                        Approved
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
+                      2023-06-26
+                    </TableCell>
+                    <TableCell className="text-right">$450.00</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      <div className="font-medium">Liam Johnson</div>
+                      <div className="hidden text-sm text-muted-foreground md:inline">
+                        liam@example.com
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden xl:table-column">
+                      Sale
+                    </TableCell>
+                    <TableCell className="hidden xl:table-column">
+                      <Badge className="text-xs" variant="outline">
+                        Approved
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
+                      2023-06-27
+                    </TableCell>
+                    <TableCell className="text-right">$550.00</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+          <Card x-chunk="dashboard-01-chunk-5">
+            <CardHeader>
+              <CardTitle>Recent Sales</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-8">
+              <div className="flex items-center gap-4">
+                <Avatar className="hidden h-9 w-9 sm:flex">
+                  <AvatarImage src="/avatars/01.png" alt="Avatar" />
+                  <AvatarFallback>OM</AvatarFallback>
+                </Avatar>
+                <div className="grid gap-1">
+                  <p className="text-sm font-medium leading-none">
+                    Olivia Martin
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    olivia.martin@email.com
+                  </p>
+                </div>
+                <div className="ml-auto font-medium">+$1,999.00</div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Avatar className="hidden h-9 w-9 sm:flex">
+                  <AvatarImage src="/avatars/02.png" alt="Avatar" />
+                  <AvatarFallback>JL</AvatarFallback>
+                </Avatar>
+                <div className="grid gap-1">
+                  <p className="text-sm font-medium leading-none">
+                    Jackson Lee
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    jackson.lee@email.com
+                  </p>
+                </div>
+                <div className="ml-auto font-medium">+$39.00</div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Avatar className="hidden h-9 w-9 sm:flex">
+                  <AvatarImage src="/avatars/03.png" alt="Avatar" />
+                  <AvatarFallback>IN</AvatarFallback>
+                </Avatar>
+                <div className="grid gap-1">
+                  <p className="text-sm font-medium leading-none">
+                    Isabella Nguyen
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    isabella.nguyen@email.com
+                  </p>
+                </div>
+                <div className="ml-auto font-medium">+$299.00</div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Avatar className="hidden h-9 w-9 sm:flex">
+                  <AvatarImage src="/avatars/04.png" alt="Avatar" />
+                  <AvatarFallback>WK</AvatarFallback>
+                </Avatar>
+                <div className="grid gap-1">
+                  <p className="text-sm font-medium leading-none">
+                    William Kim
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    will@email.com
+                  </p>
+                </div>
+                <div className="ml-auto font-medium">+$99.00</div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Avatar className="hidden h-9 w-9 sm:flex">
+                  <AvatarImage src="/avatars/05.png" alt="Avatar" />
+                  <AvatarFallback>SD</AvatarFallback>
+                </Avatar>
+                <div className="grid gap-1">
+                  <p className="text-sm font-medium leading-none">
+                    Sofia Davis
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    sofia.davis@email.com
+                  </p>
+                </div>
+                <div className="ml-auto font-medium">+$39.00</div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
   );
 }
