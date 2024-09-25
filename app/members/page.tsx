@@ -1,48 +1,28 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
-import { File, ListFilter, MoreHorizontal, PlusCircle } from "lucide-react";
+import { File, ListFilter, PlusCircle } from "lucide-react";
 import DataTable from "@/components/tables/user-table";
-import { people } from "@/lib/data";
 import { columns } from "@/components/tables/column";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db, Member } from "@/models/db";
-import { useRouter } from "next/navigation";
+import { exportTableAsCSV } from "@/lib/functions";
+import Link from "next/link";
 
-type Props = {
-  // params: {id :string}
-};
-const getData = () => people;
+type Props = {};
 
-const page = (prop: Props) => {
+const MembersPage = (prop: Props) => {
   const members = useLiveQuery(() => db.chmembers.toArray());
   const count = useLiveQuery(() => db.chmembers.count());
 
@@ -53,14 +33,13 @@ const page = (prop: Props) => {
     console.log(data, "data");
     console.log(count, "count ");
     !(async () => {
-      console.log(setData(await db.chmembers.toArray()), "PROMM");
+      setData(await db.chmembers.toArray());
     })();
+    console.log(data, "data");
   }, []);
 
   if (!data?.length) return "Empty";
-  const {} = useRouter();
 
-  const [member, setMember] = useState<Member | undefined>(undefined);
   return (
     <>
       <Tabs defaultValue="adult" className="p-6">
@@ -93,18 +72,25 @@ const page = (prop: Props) => {
                 <DropdownMenuCheckboxItem>Archived</DropdownMenuCheckboxItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button size="sm" variant="outline" className="h-7 gap-1">
+            <Button
+              onClick={() => exportTableAsCSV(data)}
+              size="sm"
+              variant="outline"
+              className="h-7 gap-1"
+            >
               <File className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                 Export
               </span>
             </Button>
-            <Button size="sm" className="h-7 gap-1">
-              <PlusCircle className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add Product
-              </span>
-            </Button>
+            <Link href={"/register-member"}>
+              <Button size="sm" className="h-7 gap-1">
+                <PlusCircle className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Add Member
+                </span>
+              </Button>
+            </Link>
           </div>
         </div>
         <TabsContent value="adult" className="">
@@ -115,4 +101,4 @@ const page = (prop: Props) => {
   );
 };
 
-export default page;
+export default MembersPage;

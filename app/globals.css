@@ -66,4 +66,43 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  @media print {
+    body {
+      background-color: white !important;
+      color: black !important;
+    }
+    #print-bold {
+    }
+    .user-details,
+    .user-details * {
+      visibility: visible;
+    }
+
+    .user-details {
+      position: absolute;
+      left: 0;
+      top: 0;
+      padding: 20px;
+      border: 1px solid #000;
+      font-family: Arial, sans-serif;
+    }
+
+    .user-details h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .user-details p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    /* Example for styling the printed version */
+    @page {
+      size: A4; /* or use size: auto to fill the page */
+      margin: 20mm;
+      background-color: white;
+    }
+  }
 }

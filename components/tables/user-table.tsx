@@ -68,6 +68,7 @@ export default function DataTable<TData, TValue>({
     },
   });
 
+  console.log(data, "SUPPOSSED TABLE");
   return (
     <section className="rounded-md border px-3">
       <div className="flex items-center justify-between">
@@ -109,8 +110,8 @@ export default function DataTable<TData, TValue>({
             </DropdownMenuContent>
           </DropdownMenu>
           <div className="flex-1 text-sm text-muted-foreground">
-            {/* {table?.getFilteredSelectedRowModel()?.rows?.length} of{" "} */}
-            {/* {table?.getFilteredRowModel()?.rows?.length} row(s) selected. */}
+            {table?.getFilteredSelectedRowModel()?.rows?.length} of{" "}
+            {table?.getFilteredRowModel()?.rows?.length} row(s) selected.
           </div>
         </div>
       </div>
@@ -136,7 +137,7 @@ export default function DataTable<TData, TValue>({
         </TableHeader>
         <TableBody>
           {table?.getRowModel()?.rows?.length ? (
-            table?.getRowModel()?.rows?.map((row) => (
+            table?.getRowModel()?.rows?.map((row, inx) => (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}

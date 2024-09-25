@@ -51,7 +51,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} max-w-[100vw]`}>
+      <body
+        className={`${inter.className} max-w-[100vw] overflow-hidden max-h-screen`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -59,10 +61,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Toaster />
-          <main className=" sticky grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-            <div className="hidden border-r bg-muted/40 md:block">
-              <div className="flex h-full max-h-screen flex-col gap-2">
-                <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+          <main className="  grid max-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+            <div className="max-h-full   hidden  border-r bg-muted/40 md:block">
+              <div className="overflow-y-auto flex h-full max-h-screen flex-col gap-2">
+                <div className=" flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
                   <Link
                     href="/"
                     className="flex items-center gap-2 font-semibold"
@@ -79,7 +81,7 @@ export default function RootLayout({
                     <span className="sr-only">Toggle notifications</span>
                   </Button>
                 </div>
-                <div className="flex-1">
+                <div className=" flex-1">
                   <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
                     <Link
                       href="/"
@@ -156,7 +158,7 @@ export default function RootLayout({
                 </div>
               </div>
             </div>
-            <div className="flex flex-col w-full overflow-x-auto">
+            <div className="flex flex-col w-full overflow-y-hidden">
               <header className="  w-full flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
                 <Sheet>
                   <SheetTrigger asChild>
@@ -269,7 +271,9 @@ export default function RootLayout({
                 </DropdownMenu>
                 <ModeToggle />
               </header>
-              {children}
+              <div className="overflow-y-auto max-h-[90vh] pb-8">
+                {children}
+              </div>
             </div>
           </main>
         </ThemeProvider>

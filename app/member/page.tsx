@@ -1,46 +1,37 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { copyFile, BaseDirectory } from "@tauri-apps/api/fs";
-
-type Props = {};
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import formSchema from "@/schema/form";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { db, Member } from "@/models/db";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { printMember } from "@/components/sections/member-print";
+import { convertImageToBase64 } from "@/lib/functions";
+import { useToast } from "@/components/hooks/use-toast";
+import { useLiveQuery } from "dexie-react-hooks";
+import { Textarea } from "@/components/ui/textarea";
 
-const page = (props: Props) => {
-  const [file, setFile] = useState();
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("values");
-    console.log(values, file);
-  }
-  const [disabled, setDisAbled] = useState<boolean>(true);
-  const [member, setMember] = useState<Member | undefined>(undefined);
-  // const { id } = router.query;
+const MemberPage = () => {
   const searchParams = useSearchParams();
   const ID = searchParams.get("id");
-  console.log(ID, "ID");
+  const [disabled, setDisabled] = useState<boolean>(true);
+  const [image, setImage] = useState<File | undefined>(undefined);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const { toast } = useToast();
 
-  type idType = string | number | symbol;
-  type memberData = Partial<Member>;
-  // const data: memberData = member!;
-  const others = member!;
-  console.log(others);
   const [defaulVal, setDefaultVal] = useState<Member>({
     bibleStudyGroup: "grace",
     name: "",
@@ -60,10 +51,12 @@ const page = (props: Props) => {
     role: "deacon",
     spouseName: "",
   });
-  useEffect(() => {
-    setDefaultVal(others);
-    console.log("2");
-  }, [others]);
+
+  const member = useLiveQuery(
+    () => db.table("chmembers").get(Number(ID)),
+    [ID]
+  );
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: defaulVal,
@@ -72,351 +65,382 @@ const page = (props: Props) => {
   const { reset } = form;
 
   useEffect(() => {
-    if (ID) {
-      const fetchMember = async () => {
-        try {
-          const memberData = await db.chmembers.get(Number(ID));
-          setMember(memberData);
-          console.log(memberData);
-
-          // Reset the form values with the fetched member data
-          if (memberData) {
-            reset(memberData);
-          }
-        } catch (error) {
-          console.error("Failed to fetch member:", error);
-        }
-      };
-      fetchMember();
+    if (member) {
+      reset(member);
     }
-  }, [ID, reset]);
-  if (!ID) return "EMPTY";
+  }, [member, reset]);
 
-  console.log("data", others);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (image) {
+      const base64String = await convertImageToBase64(image);
+      await db
+        .table("chmembers")
+        .update(Number(ID), { ...values, picture: base64String });
+    } else {
+      await db.table("chmembers").update(Number(ID), values);
+    }
+    toast({
+      title: "Member updated successfully",
+      description: "Changes have been saved.",
+    });
+  };
+
+  if (!member) return <div>Loading...</div>;
+
   return (
     <section className="w-full mr-auto">
-      <div className="flex justify-between items-center border-b  px-4 py-2">
-        <Button variant="outline"> Member Details</Button>
-        <Button
-          variant="outline"
-          onClick={() => {
-            setDisAbled(!disabled);
-          }}
-        >
-          {" "}
+      <div className="flex justify-between items-center border-b px-4 py-2">
+        <Button variant="outline">Member Details</Button>
+        <Button variant="outline" onClick={() => setDisabled(!disabled)}>
           {disabled ? "Edit" : "Cancel"}
         </Button>
       </div>
-      <div className="mx-auto mt-6 w-full ">
-        <div className="mx-auto gap-3 p-2 rounded-sm justify-between items-center flex w-full h-fit border max-w-xl">
-          <div className="flex items-center gap-3">
-            <Avatar className=" w-20 h-20">
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>
-                {defaulVal?.name?.slice(0, 2).toLocaleUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <p>{defaulVal?.name}</p>
-              <p>{defaulVal?.residentialAddress}</p>
-            </div>
+      <div className="mx-auto mt-6 w-full max-w-xl">
+        <div className="flex gap-3 p-2 rounded-sm items-center border">
+          <Avatar className="w-20 h-20">
+            <AvatarImage src={member?.picture ?? "/images/placeholder.svg"} />
+            <AvatarFallback>
+              {member?.name?.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <p>{member?.name}</p>
+            <p>{member?.residentialAddress}</p>
           </div>
-          <Button
-            onClick={() => {
-              setDisAbled(false);
-
-              window.print();
-              setDisAbled(true);
-            }}
-          >
-            Print
-          </Button>
         </div>
 
         <FormProvider {...form}>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col gap-4 mx-auto max-w-xl  border-0 py-8 px-4 rounded-md mr-auto"
-            >
-              <div className="flex gap-2 w-full flex-col sm:flex-row">
-                <FormField
-                  disabled={disabled}
-                  defaultValue={others?.name}
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Isaac Sakyi" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        This is your public display name.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  disabled={disabled}
-                  defaultValue={others?.dob}
-                  control={form.control}
-                  name="dob"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Date of Birth</FormLabel>
-                      <FormControl>
-                        <Input placeholder="2024-09-22" {...field} />
-                      </FormControl>
-                      <FormDescription></FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex gap-2 w-full flex-col sm:flex-row">
-                <FormField
-                  disabled={disabled}
-                  defaultValue={others?.gender}
-                  control={form.control}
-                  name="gender"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Gender</FormLabel>
-                      <FormControl>
-                        <Input placeholder="M/F" {...field} />
-                      </FormControl>
-                      <FormDescription></FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  disabled={disabled}
-                  defaultValue={others?.mobile}
-                  control={form.control}
-                  name="mobile"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <Input placeholder="0591514584" {...field} />
-                      </FormControl>
-                      <FormDescription></FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex gap-2 w-full flex-col sm:flex-row">
-                <FormField
-                  control={form.control}
-                  disabled={disabled}
-                  defaultValue={others?.residentialAddress}
-                  name="residentialAddress"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <Input placeholder="GA-183-456" {...field} />
-                      </FormControl>
-                      <FormDescription></FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  disabled={disabled}
-                  defaultValue={others?.name}
-                  name="occupation"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Occupation</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Farmer" {...field} />
-                      </FormControl>
-                      <FormDescription></FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex gap-2 w-full flex-col sm:flex-row">
-                <FormField
-                  control={form.control}
-                  disabled={disabled}
-                  defaultValue={others?.name}
-                  name="maritalStatus"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Marital Status</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Married/Single" {...field} />
-                      </FormControl>
-                      <FormDescription></FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  disabled={disabled}
-                  defaultValue={others?.name}
-                  name="spouseName"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Spouse Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Raymond Smith" {...field} />
-                      </FormControl>
-                      <FormDescription></FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex gap-2 w-full flex-col sm:flex-row">
-                <FormField
-                  control={form.control}
-                  disabled={disabled}
-                  defaultValue={others?.name}
-                  name="numberOfChildren"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Number of Children</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="2" {...field} />
-                      </FormControl>
-                      <FormDescription></FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  disabled={disabled}
-                  defaultValue={others?.name}
-                  name="numberOfOtherHouseholdMembers"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Number of other household members</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="2" {...field} />
-                      </FormControl>
-                      <FormDescription></FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex gap-2 w-full flex-col sm:flex-row">
-                <FormField
-                  control={form.control}
-                  disabled={disabled}
-                  defaultValue={others?.name}
-                  name="ghanaCardID"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Ghana Card ID</FormLabel>
-                      <FormControl>
-                        <Input placeholder="GHA-XXXXXXXXX-X" {...field} />
-                      </FormControl>
-                      <FormDescription></FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  disabled={disabled}
-                  defaultValue={others?.name}
-                  name="picture"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Upload Photo</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="file"
-                          accept=".jpg, .jpeg, .png"
-                          disabled={disabled}
-                          defaultValue={others?.name}
-                          // value={file}
-                          // onChange={(e)=> setFile(e.target.value as unknown)}
-                          // placeholder="GHA-XXXXXXXXX-X"
-                          // {...field}
-                        />
-                      </FormControl>
-                      <FormDescription></FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex gap-2 w-full flex-col sm:flex-row">
-                <FormField
-                  control={form.control}
-                  disabled={disabled}
-                  defaultValue={others?.name}
-                  name="cell"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Cell</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Love" {...field} />
-                      </FormControl>
-                      <FormDescription></FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  disabled={disabled}
-                  defaultValue={others?.name}
-                  name="contactPerson"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Contact Person</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Love" {...field} />
-                      </FormControl>
-                      <FormDescription></FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex gap-2 w-full flex-col sm:flex-row">
-                <FormField
-                  control={form.control}
-                  disabled={disabled}
-                  defaultValue={others?.name}
-                  name="Remarks"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Remarks</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="remarks" {...field} />
-                      </FormControl>
-                      <FormDescription></FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              {!disabled && (
-                <Button type="submit" onClick={() => console.log("first")}>
-                  Update
-                </Button>
-              )}
-            </form>
-          </Form>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4 mx-auto py-8 px-4"
+          >
+            <div className="flex gap-2">
+              <FormField
+                name="name"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Isaac Sakyi"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="dob"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Date of Birth</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="2024-09-22"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <FormField
+                name="gender"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Gender</FormLabel>
+                    <FormControl>
+                      <Input placeholder="M/F" disabled={disabled} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="mobile"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="0591514584"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <FormField
+                name="residentialAddress"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Residential Address</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="GA-183-456"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="occupation"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Occupation</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Farmer"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <FormField
+                name="maritalStatus"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Marital Status</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Married/Single"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="spouseName"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Spouse Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Raymond Smith"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <FormField
+                name="numberOfChildren"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Number of Children</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="2"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="numberOfOtherHouseholdMembers"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Other Household Members</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="2"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <FormField
+                name="ghanaCardID"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Ghana Card ID</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="GHA-XXXXXXXXX-X"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="picture"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Upload Photo</FormLabel>
+                    <FormControl>
+                      <input
+                        type="file"
+                        accept=".jpg, .jpeg, .png"
+                        ref={fileRef}
+                        disabled={disabled}
+                        onChange={(e) => setImage(e.target?.files?.[0])}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <FormField
+                name="role"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Role</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Member"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="cell"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Cell</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Love"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <FormField
+                name="bibleStudyGroup"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Bible Study Group</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Grace"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex gap-2 flex-col">
+              <FormField
+                name="contactPerson"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Contact Person</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Jordan Paul is my uncle and you can reach out him om 02444444444444"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="Remarks"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Remarks</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="No remarks"
+                        disabled={disabled}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {!disabled && <Button type="submit">Update</Button>}
+          </form>
         </FormProvider>
       </div>
     </section>
   );
 };
 
-export default page;
+export default function MemberPageWrapper() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <MemberPage />
+    </Suspense>
+  );
+}

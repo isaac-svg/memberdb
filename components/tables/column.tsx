@@ -17,6 +17,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Member } from "@/models/db";
+import Image from "next/image";
+import Link from "next/link";
 
 export const columns: ColumnDef<Member>[] = [
   {
@@ -41,7 +43,20 @@ export const columns: ColumnDef<Member>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  { accessorKey: "picture", header: "Picture" },
+  {
+    accessorKey: "picture",
+    header: "Picture",
+    cell: ({ row }) => (
+      <Link href={`/member/?id=${row.original.id}`}>
+        <img
+          className="aspect-square rounded-md object-cover"
+          src={row.original.picture ?? "/images/placeholder.svg"}
+          alt={row.original.name}
+          style={{ width: "50px", height: "50px", objectFit: "cover" }}
+        />
+      </Link>
+    ),
+  },
   {
     accessorKey: "name",
     // header: "Name",
@@ -138,7 +153,9 @@ export const columns: ColumnDef<Member>[] = [
               Copy mobile number
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View Full Details</DropdownMenuItem>
+            <DropdownMenuItem>
+              <Link href={`/member/?id=${member.id}`}>View Full Details</Link>
+            </DropdownMenuItem>
             <DropdownMenuItem>View Location</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

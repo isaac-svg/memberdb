@@ -19,37 +19,42 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/hooks/use-toast";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { db } from "@/models/db";
 import { useLiveQuery } from "dexie-react-hooks";
+import { convertImageToBase64 } from "@/lib/functions";
 
 type Props = {};
 
-const page = (props: Props) => {
+const RegisterMember = (props: Props) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      // id: "10",
-      // bibleStudyGroup: "grace",
-      // role: "member",
-      name: "Efua Addo",
-      dob: "1975-09-14",
-      gender: "Female",
-      cell: "Joy",
-      residentialAddress: "GA-183-456",
-      mobile: "0234455667",
-      maritalStatus: "Married",
-      spouseName: "Kwame Addo",
-      numberOfChildren: "5",
-      numberOfOtherHouseholdMembers: "2",
-      occupation: "Chef",
-      contactPerson: "Ama Addo",
-      Remarks: "Cooks for the church",
-      ghanaCardID: "GHA-778899001-1",
-      // picture: "https://example.com/photo10.jpg",
-    },
+    // defaultValues: {
+    //   // id: "10",
+    //   // bibleStudyGroup: "grace",
+    //   // role: "member",
+    //   name: "Efua Addo",
+    //   dob: "1975-09-14",
+    //   gender: "Female",
+    //   cell: "Joy",
+    //   residentialAddress: "GA-183-456",
+    //   mobile: "0234455667",
+    //   maritalStatus: "Married",
+    //   spouseName: "Kwame Addo",
+    //   numberOfChildren: "5",
+    //   numberOfOtherHouseholdMembers: "2",
+    //   occupation: "Chef",
+    //   contactPerson: "Ama Addo",
+    //   Remarks: "Cooks for the church",
+    //   ghanaCardID: "GHA-778899001-1",
+    //   // picture: "https://example.com/photo10.jpg",
+    // },
   });
+  const { toast } = useToast();
+
+  const [image, setImage] = useState<File | undefined>(undefined);
   const members = useLiveQuery(() => db.chmembers.toArray());
+  const fileRef = useRef<HTMLInputElement | null>(null);
 
   async function addMember(values: z.infer<typeof formSchema>) {
     try {
@@ -63,34 +68,27 @@ const page = (props: Props) => {
       // setStatus(`Failed to add ${name}: ${error}`);
     }
   }
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("values");
-    console.log(values);
 
-    addMember(values);
+    if (image?.name) {
+      const base64String = await convertImageToBase64(image);
+      console.log(image.name);
+      addMember({ ...values, picture: base64String });
+      console.log({ ...values, picture: base64String });
+    } else {
+      addMember(values);
+    }
 
     toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      ),
+      title: "Member added to DB successfully",
+      variant: "default",
+      description: "You can click on the edit button to update the details",
     });
   }
 
-  const { toast } = useToast();
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImagePreview(URL.createObjectURL(file)); // Preview the image
-    }
-  };
-
   return (
-    <section className="p-6">
+    <section className="p-6 mb-14">
       <div className="py-6">
         <h1 className=" text-3xl text-muted-foreground font-semibold text-center">
           Register New Member
@@ -279,11 +277,15 @@ const page = (props: Props) => {
                   <FormItem className="w-full">
                     <FormLabel>Upload Photo</FormLabel>
                     <FormControl>
-                      <Input
+                      <input
+                        ref={fileRef}
                         type="file"
                         accept=".jpg, .jpeg, .png"
-                        // placeholder="GHA-XXXXXXXXX-X"
-                        {...field}
+                        onChange={(e) => {
+                          setImage(e.target?.files?.[0]);
+                          const a = e.target?.files?.[0];
+                          console.log(e.target?.files?.[0]);
+                        }}
                       />
                     </FormControl>
                     <FormDescription></FormDescription>
@@ -447,4 +449,4 @@ const page = (props: Props) => {
   );
 };
 
-export default page;
+export default RegisterMember;
