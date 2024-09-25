@@ -23,6 +23,7 @@ import { convertImageToBase64 } from "@/lib/functions";
 import { useToast } from "@/components/hooks/use-toast";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Textarea } from "@/components/ui/textarea";
+import { PrinterIcon } from "lucide-react";
 
 const MemberPage = () => {
   const searchParams = useSearchParams();
@@ -85,7 +86,14 @@ const MemberPage = () => {
     });
   };
 
-  if (!member) return <div>Loading...</div>;
+  if (!member)
+    return (
+      <div className="flex justify-center items-center h-screen w-full">
+        {/* You can use any spinner/loading component or text here */}
+        <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-blue-600"></div>
+        <span className="ml-2">Loading...</span>
+      </div>
+    );
 
   return (
     <section className="w-full mr-auto">
@@ -96,17 +104,31 @@ const MemberPage = () => {
         </Button>
       </div>
       <div className="mx-auto mt-6 w-full max-w-xl">
-        <div className="flex gap-3 p-2 rounded-sm items-center border">
-          <Avatar className="w-20 h-20">
-            <AvatarImage src={member?.picture ?? "/images/placeholder.svg"} />
-            <AvatarFallback>
-              {member?.name?.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p>{member?.name}</p>
-            <p>{member?.residentialAddress}</p>
+        <div className="flex gap-3 justify-between p-2 rounded-sm items-center border">
+          <div className="flex gap-3 items-center">
+            <Avatar className="w-20 h-20">
+              <AvatarImage src={member?.picture ?? "/images/placeholder.svg"} />
+              <AvatarFallback>
+                {member?.name?.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p>{member?.name}</p>
+              <p>{member?.residentialAddress}</p>
+            </div>
           </div>
+          <Button
+            onClick={() => printMember(member)}
+            size="sm"
+            className="h-7 gap-1"
+            variant="outline"
+          >
+            {" "}
+            <PrinterIcon className="h-3.5 w-3.5" />{" "}
+            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+              Print
+            </span>
+          </Button>
         </div>
 
         <FormProvider {...form}>
@@ -439,7 +461,15 @@ const MemberPage = () => {
 
 export default function MemberPageWrapper() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center h-screen w-full">
+          {/* You can use any spinner/loading component or text here */}
+          <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-blue-600"></div>
+          <span className="ml-2">Loading...</span>
+        </div>
+      }
+    >
       <MemberPage />
     </Suspense>
   );

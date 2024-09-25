@@ -3,23 +3,12 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "../ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "../ui/chart";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Label,
-  Line,
-  LineChart,
-  Rectangle,
-  ReferenceLine,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { LineChart, CartesianGrid, XAxis, YAxis, Line } from "recharts";
+
 type Props = {};
 
 const MonthlyStat = (props: Props) => {
@@ -27,20 +16,20 @@ const MonthlyStat = (props: Props) => {
     <Card className="flex flex-col lg:max-w-md" x-chunk="charts-01-chunk-1">
       <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2 [&>div]:flex-1">
         <div>
-          <CardDescription>Resting HR</CardDescription>
+          <CardDescription>Total Donations</CardDescription>
           <CardTitle className="flex items-baseline gap-1 text-4xl tabular-nums">
-            62
+            8500
             <span className="text-sm font-normal tracking-normal text-muted-foreground">
-              bpm
+              GHC
             </span>
           </CardTitle>
         </div>
         <div>
-          <CardDescription>Variability</CardDescription>
+          <CardDescription>New Members</CardDescription>
           <CardTitle className="flex items-baseline gap-1 text-4xl tabular-nums">
-            35
+            15
             <span className="text-sm font-normal tracking-normal text-muted-foreground">
-              ms
+              members
             </span>
           </CardTitle>
         </div>
@@ -48,8 +37,8 @@ const MonthlyStat = (props: Props) => {
       <CardContent className="flex flex-1 items-center">
         <ChartContainer
           config={{
-            resting: {
-              label: "Resting",
+            donations: {
+              label: "Donations",
               color: "hsl(var(--chart-1))",
             },
           }}
@@ -63,54 +52,18 @@ const MonthlyStat = (props: Props) => {
               top: 10,
             }}
             data={[
-              {
-                date: "2024-01-01",
-                resting: 62,
-              },
-              {
-                date: "2024-02-02",
-                resting: 72,
-              },
-              {
-                date: "2024-03-03",
-                resting: 35,
-              },
-              {
-                date: "2024-04-04",
-                resting: 62,
-              },
-              {
-                date: "2024-05-05",
-                resting: 52,
-              },
-              {
-                date: "2024-06-06",
-                resting: 62,
-              },
-              {
-                date: "2024-07-07",
-                resting: 70,
-              },
-              {
-                date: "2024-08-08",
-                resting: 70,
-              },
-              {
-                date: "2024-09-09",
-                resting: 70,
-              },
-              {
-                date: "2024-10-10",
-                resting: 70,
-              },
-              {
-                date: "2024-11-11",
-                resting: 80,
-              },
-              {
-                date: "2024-12-12",
-                resting: 100,
-              },
+              { date: "2024-01-01", donations: 1000 },
+              { date: "2024-02-01", donations: 1500 },
+              { date: "2024-03-01", donations: 1200 },
+              { date: "2024-04-01", donations: 1800 },
+              { date: "2024-05-01", donations: 2000 },
+              { date: "2024-06-01", donations: 1700 },
+              { date: "2024-07-01", donations: 2200 },
+              { date: "2024-08-01", donations: 1600 },
+              { date: "2024-09-01", donations: 1900 },
+              { date: "2024-10-01", donations: 2000 },
+              { date: "2024-11-01", donations: 2300 },
+              { date: "2024-12-01", donations: 2500 },
             ]}
           >
             <CartesianGrid
@@ -127,21 +80,20 @@ const MonthlyStat = (props: Props) => {
               tickMargin={8}
               tickFormatter={(value) => {
                 return new Date(value).toLocaleDateString("en-US", {
-                  // weekday: "short",
                   month: "short",
                 });
               }}
             />
             <Line
-              dataKey="resting"
+              dataKey="donations"
               type="natural"
-              fill="var(--color-resting)"
-              stroke="var(--color-resting)"
+              fill="var(--color-donations)"
+              stroke="var(--color-donations)"
               strokeWidth={2}
               dot={false}
               activeDot={{
-                fill: "var(--color-resting)",
-                stroke: "var(--color-resting)",
+                fill: "var(--color-donations)",
+                stroke: "var(--color-donations)",
                 r: 4,
               }}
             />

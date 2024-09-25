@@ -12,16 +12,16 @@ const ServiceStat = (props: Props) => {
       <CardContent className="flex gap-4 p-4 pb-2">
         <ChartContainer
           config={{
-            move: {
-              label: "Move",
+            attendance: {
+              label: "Attendance",
               color: "hsl(var(--chart-1))",
             },
-            stand: {
-              label: "Stand",
+            services: {
+              label: "Services Held",
               color: "hsl(var(--chart-2))",
             },
-            exercise: {
-              label: "Exercise",
+            volunteers: {
+              label: "Volunteers Engaged",
               color: "hsl(var(--chart-3))",
             },
           }}
@@ -36,22 +36,22 @@ const ServiceStat = (props: Props) => {
             }}
             data={[
               {
-                activity: "stand",
-                value: (8 / 12) * 100,
-                label: "8/12 hr",
-                fill: "var(--color-stand)",
+                activity: "attendance",
+                value: (150 / 200) * 100,
+                label: "150/200",
+                fill: "var(--color-attendance)",
               },
               {
-                activity: "exercise",
-                value: (46 / 60) * 100,
-                label: "46/60 min",
-                fill: "var(--color-exercise)",
+                activity: "services",
+                value: (12 / 20) * 100,
+                label: "12/20",
+                fill: "var(--color-services)",
               },
               {
-                activity: "move",
-                value: (245 / 360) * 100,
-                label: "245/360 kcal",
-                fill: "var(--color-move)",
+                activity: "volunteers",
+                value: (30 / 50) * 100,
+                label: "30/50",
+                fill: "var(--color-volunteers)",
               },
             ]}
             layout="vertical"
@@ -82,34 +82,34 @@ const ServiceStat = (props: Props) => {
       <CardFooter className="flex flex-row border-t p-4">
         <div className="flex w-full items-center gap-2">
           <div className="grid flex-1 auto-rows-min gap-0.5">
-            <div className="text-xs text-muted-foreground">Move</div>
+            <div className="text-xs text-muted-foreground">Attendance</div>
             <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-              562
+              150
               <span className="text-sm font-normal text-muted-foreground">
-                kcal
+                people
               </span>
             </div>
           </div>
           <Separator orientation="vertical" className="mx-2 h-10 w-px" />
           <div className="grid flex-1 auto-rows-min gap-0.5">
-            <div className="text-xs text-muted-foreground">Exercise</div>
+            <div className="text-xs text-muted-foreground">Services Held</div>
             <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-              73
+              12
               <span className="text-sm font-normal text-muted-foreground">
-                min
+                services
               </span>
             </div>
           </div>
           <Separator orientation="vertical" className="mx-2 h-10 w-px" />
-          <div className="grid flex-1 auto-rows-min gap-0.5">
-            <div className="text-xs text-muted-foreground">Stand</div>
+          {/* <div className="grid flex-1 auto-rows-min gap-0.5">
+            <div className="text-xs text-muted-foreground">Volunteers</div>
             <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-              14
+              30
               <span className="text-sm font-normal text-muted-foreground">
-                hr
+                volunteers
               </span>
             </div>
-          </div>
+          </div> */}
         </div>
       </CardFooter>
     </Card>

@@ -29,6 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { Filter, FilterIcon, ListFilter } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -85,8 +86,16 @@ export default function DataTable<TData, TValue>({
         <div className="flex items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Select/hide columns
+              <Button
+                // className="ml-auto"
+                variant="outline"
+                size="sm"
+                className="h-7 gap-1"
+              >
+                <ListFilter className="h-3.5 w-3.5" />{" "}
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Filter
+                </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -109,6 +118,7 @@ export default function DataTable<TData, TValue>({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
+
           <div className="flex-1 text-sm text-muted-foreground">
             {table?.getFilteredSelectedRowModel()?.rows?.length} of{" "}
             {table?.getFilteredRowModel()?.rows?.length} row(s) selected.
@@ -170,7 +180,13 @@ export default function DataTable<TData, TValue>({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.nextPage()}
+          onClick={() => {
+            table.nextPage();
+            const container = document.querySelector(".scroll-triger");
+            // container?.scrollTo({ top: 0, behavior: "smooth" });
+            // window.scrollTo(0, document.body.scrollHeight);
+            container?.scrollIntoView({ behavior: "smooth" });
+          }}
           disabled={!table.getCanNextPage()}
         >
           Next

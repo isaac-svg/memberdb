@@ -23,19 +23,19 @@ const WeeklyStat = (props: Props) => {
   return (
     <Card className="lg:max-w-md" x-chunk="charts-01-chunk-0">
       <CardHeader className="space-y-0 pb-2">
-        <CardDescription>Today</CardDescription>
+        <CardDescription>This Week</CardDescription>
         <CardTitle className="text-4xl tabular-nums">
-          12,584{" "}
+          230{" "}
           <span className="font-sans text-sm font-normal tracking-normal text-muted-foreground">
-            steps
+            attendees
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer
           config={{
-            steps: {
-              label: "Steps",
+            attendance: {
+              label: "Attendance",
               color: "hsl(var(--chart-1))",
             },
           }}
@@ -48,38 +48,38 @@ const WeeklyStat = (props: Props) => {
             }}
             data={[
               {
-                date: "2024-01-01",
-                steps: 2000,
+                date: "2024-09-18",
+                attendees: 30,
               },
               {
-                date: "2024-01-02",
-                steps: 2100,
+                date: "2024-09-19",
+                attendees: 45,
               },
               {
-                date: "2024-01-03",
-                steps: 2200,
+                date: "2024-09-20",
+                attendees: 35,
               },
               {
-                date: "2024-01-04",
-                steps: 1300,
+                date: "2024-09-21",
+                attendees: 50,
               },
               {
-                date: "2024-01-05",
-                steps: 1400,
+                date: "2024-09-22",
+                attendees: 40,
               },
               {
-                date: "2024-01-06",
-                steps: 2500,
+                date: "2024-09-23",
+                attendees: 25,
               },
               {
-                date: "2024-01-07",
-                steps: 1600,
+                date: "2024-09-24",
+                attendees: 45,
               },
             ]}
           >
             <Bar
-              dataKey="steps"
-              fill="var(--color-steps)"
+              dataKey="attendees"
+              fill="var(--color-attendance)"
               radius={5}
               fillOpacity={0.6}
               activeBar={<Rectangle fillOpacity={0.8} />}
@@ -112,20 +112,20 @@ const WeeklyStat = (props: Props) => {
               cursor={false}
             />
             <ReferenceLine
-              y={1200}
+              y={40}
               stroke="hsl(var(--muted-foreground))"
               strokeDasharray="3 3"
               strokeWidth={1}
             >
               <Label
                 position="insideBottomLeft"
-                value="Average Steps"
+                value="Average Attendance"
                 offset={10}
                 fill="hsl(var(--foreground))"
               />
               <Label
                 position="insideTopLeft"
-                value="12,343"
+                value="40"
                 className="text-lg"
                 fill="hsl(var(--foreground))"
                 offset={10}
@@ -137,12 +137,12 @@ const WeeklyStat = (props: Props) => {
       </CardContent>
       <CardFooter className="flex-col items-start gap-1">
         <CardDescription>
-          Over the past 7 days, you have walked{" "}
-          <span className="font-medium text-foreground">53,305</span> steps.
+          Over the past 7 days, you have had{" "}
+          <span className="font-medium text-foreground">230</span> attendees.
         </CardDescription>
         <CardDescription>
-          You need <span className="font-medium text-foreground">12,584</span>{" "}
-          more steps to reach your goal.
+          You need <span className="font-medium text-foreground">70</span> more
+          attendees to reach your goal.
         </CardDescription>
       </CardFooter>
     </Card>

@@ -23,25 +23,34 @@ import Link from "next/link";
 type Props = {};
 
 const MembersPage = (prop: Props) => {
-  const members = useLiveQuery(() => db.chmembers.toArray());
-  const count = useLiveQuery(() => db.chmembers.count());
-
   const [data, setData] = useState<Member[] | undefined>([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    // setData(members);
-    console.log(members, "members");
-    console.log(data, "data");
-    console.log(count, "count ");
-    !(async () => {
-      setData(await db.chmembers.toArray());
-    })();
-    console.log(data, "data");
+    const fetchData = async () => {
+      setLoading(true); // Set loading to true before fetching
+      const members = await db.chmembers.toArray();
+      setData(members);
+      setLoading(false); // Set loading to false after data is fetched
+    };
+
+    fetchData();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen w-full">
+        {/* You can use any spinner/loading component or text here */}
+        <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-blue-600"></div>
+        <span className="ml-2">Loading...</span>
+      </div>
+    );
+  }
 
   if (!data?.length) return "Empty";
 
   return (
-    <>
+    <div className="scroll-triger">
       <Tabs defaultValue="adult" className="p-6">
         <div className="flex items-center">
           <TabsList>
@@ -53,25 +62,6 @@ const MembersPage = (prop: Props) => {
             </TabsTrigger>
           </TabsList>
           <div className="ml-auto flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-7 gap-1">
-                  <ListFilter className="h-3.5 w-3.5" />
-                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    Filter
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuCheckboxItem checked>
-                  Active
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem>Draft</DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem>Archived</DropdownMenuCheckboxItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
             <Button
               onClick={() => exportTableAsCSV(data)}
               size="sm"
@@ -93,11 +83,11 @@ const MembersPage = (prop: Props) => {
             </Link>
           </div>
         </div>
-        <TabsContent value="adult" className="">
+        <TabsContent value="adult" className="mt-8 ">
           <DataTable columns={columns} data={data} />
         </TabsContent>
       </Tabs>
-    </>
+    </div>
   );
 };
 
