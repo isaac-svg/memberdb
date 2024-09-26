@@ -46,8 +46,9 @@ import Link from "next/link";
 import WeeklyStat from "@/components/sections/weekly-stat";
 import MonthlyStat from "@/components/sections/monthly-stat";
 import ServiceStat from "@/components/sections/service-stat";
+import WithAuth from "@/components/auth/withAuth";
 
-export default function Dashboard() {
+const Dashboard = () => {
   const currentDate = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
@@ -70,24 +71,8 @@ export default function Dashboard() {
             {currentDate} | {currentTime}
           </p>
         </header>
-        <div className="flex w-full  gap-3  justify-end my-4 border-b-background border-b-[1px] py-3 ">
-          <Link href={"/register-member"}>
-            <Button className="gap-2">
-              Add Member <UserPlusIcon size={18} />
-            </Button>
-          </Link>
-          <Link href={"/export-data"}>
-            <Button className="gap-2">
-              Export Data <DownloadIcon size={18} />
-            </Button>
-          </Link>
-          <>
-            <Button className="gap-2">
-              Calender <CalendarIcon size={18} />
-            </Button>
-          </>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <WeeklyStat />
           <MonthlyStat />
           <ServiceStat />
@@ -95,4 +80,6 @@ export default function Dashboard() {
       </div>
     </div>
   );
-}
+};
+
+export default WithAuth(Dashboard);

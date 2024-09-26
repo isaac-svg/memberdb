@@ -1,36 +1,35 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
 import { Button } from "@/components/ui/button";
 import { File, ListFilter, PlusCircle } from "lucide-react";
 import DataTable from "@/components/tables/user-table";
 import { columns } from "@/components/tables/column";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, Member } from "@/models/db";
+import { Child, db, Member } from "@/models/db";
 import { exportTableAsCSV } from "@/lib/functions";
 import Link from "next/link";
+import WithAuth from "@/components/auth/withAuth";
+import ChildrenDataTable from "@/components/tables/children";
+import { childrenColumns } from "@/components/tables/children-column";
 
 type Props = {};
 
 const MembersPage = (prop: Props) => {
   const [data, setData] = useState<Member[] | undefined>([]);
+  const [children, setChildren] = useState<Child[] | undefined>([]);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true); // Set loading to true before fetching
       const members = await db.chmembers.toArray();
+      const childArr = await db.child.toArray();
+
       setData(members);
+      setChildren(childArr);
       setLoading(false); // Set loading to false after data is fetched
     };
 
@@ -86,9 +85,12 @@ const MembersPage = (prop: Props) => {
         <TabsContent value="adult" className="mt-8 ">
           <DataTable columns={columns} data={data} />
         </TabsContent>
+        <TabsContent value="children" className="mt-8 ">
+          <ChildrenDataTable columns={childrenColumns} data={children!} />
+        </TabsContent>
       </Tabs>
     </div>
   );
 };
 
-export default MembersPage;
+export default WithAuth(MembersPage);

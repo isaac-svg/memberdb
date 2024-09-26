@@ -8,7 +8,7 @@ type Props = {};
 
 const ServiceStat = (props: Props) => {
   return (
-    <Card className="max-w-xs" x-chunk="charts-01-chunk-4">
+    <Card className="w-full" x-chunk="charts-01-chunk-4">
       <CardContent className="flex gap-4 p-4 pb-2">
         <ChartContainer
           config={{

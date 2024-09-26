@@ -1,3 +1,5 @@
+"use client";
+import WithAuth from "@/components/auth/withAuth";
 import {
   BarChartComponent,
   BarChartHorizontalComponent,
@@ -18,7 +20,7 @@ import React from "react";
 
 type Props = {};
 
-const Analytics = (props: Props) => {
+const AnalyticsPage = (props: Props) => {
   return (
     <div className="min-h-screen px-6 py-8 flex flex-col gap-6">
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
@@ -88,4 +90,4 @@ const Analytics = (props: Props) => {
   );
 };
 
-export default Analytics;
+export default WithAuth(AnalyticsPage);

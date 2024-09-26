@@ -7,7 +7,7 @@
     "distDir": "../out"
   },
   "package": {
-    "productName": "zeus",
+    "productName": "memberDB",
     "version": "0.1.0"
   },
   "tauri": {
@@ -34,9 +34,6 @@
         "all": true
       },
       "dialog": {
-        "all": true
-      },
-      "os": {
         "all": true
       }
     },
@@ -66,7 +63,7 @@
       },
       "resources": [],
       "shortDescription": "",
-      "targets": ["deb", "appimage"],
+      "targets": ["deb", "appimage", "msi"],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
@@ -84,7 +81,7 @@
         "fullscreen": false,
         "height": 600,
         "resizable": true,
-        "title": "zeus",
+        "title": "memberDB",
         "width": 800
       }
     ]

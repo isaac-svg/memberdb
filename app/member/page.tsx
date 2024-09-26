@@ -24,6 +24,7 @@ import { useToast } from "@/components/hooks/use-toast";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Textarea } from "@/components/ui/textarea";
 import { PrinterIcon } from "lucide-react";
+import WithAuth from "@/components/auth/withAuth";
 
 const MemberPage = () => {
   const searchParams = useSearchParams();
@@ -459,7 +460,7 @@ const MemberPage = () => {
   );
 };
 
-export default function MemberPageWrapper() {
+const MemberPageWrapper = () => {
   return (
     <Suspense
       fallback={
@@ -473,4 +474,6 @@ export default function MemberPageWrapper() {
       <MemberPage />
     </Suspense>
   );
-}
+};
+
+export default WithAuth(MemberPageWrapper);

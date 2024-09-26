@@ -25,13 +25,13 @@ const MonthlyStat = (props: Props) => {
           </CardTitle>
         </div>
         <div>
-          <CardDescription>New Members</CardDescription>
-          <CardTitle className="flex items-baseline gap-1 text-4xl tabular-nums">
+          {/* <CardDescription>New Members</CardDescription> */}
+          {/* <CardTitle className="flex items-baseline gap-1 text-4xl tabular-nums">
             15
             <span className="text-sm font-normal tracking-normal text-muted-foreground">
               members
             </span>
-          </CardTitle>
+          </CardTitle> */}
         </div>
       </CardHeader>
       <CardContent className="flex flex-1 items-center">
