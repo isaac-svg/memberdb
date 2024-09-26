@@ -93,4 +93,4 @@ const MembersPage = (prop: Props) => {
   );
 };
 
-export default WithAuth(MembersPage);
+export default MembersPage;

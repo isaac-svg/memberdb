@@ -57,4 +57,4 @@ const RegisterMember = (props: Props) => {
   );
 };
 
-export default WithAuth(RegisterMember);
+export default RegisterMember;

@@ -3,7 +3,9 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "../auth-provider";
 
-const WithAuth = (WrappedComponent: React.ComponentType) => {
+export const description = "auth wrapper.";
+
+function MithAuth(WrappedComponent: React.ComponentType) {
   const router = useRouter();
   const { user } = useAuth();
   useEffect(() => {
@@ -15,7 +17,7 @@ const WithAuth = (WrappedComponent: React.ComponentType) => {
   return (props: any) => {
     return user ? <WrappedComponent {...props} /> : null;
   };
-};
-WithAuth.displayName = `withauth wraper`;
+}
 
+const WithAuth = MithAuth;
 export default WithAuth;

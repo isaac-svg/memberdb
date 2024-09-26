@@ -1,5 +1,4 @@
 "use client";
-import WithAuth from "@/components/auth/withAuth";
 import {
   BarChartComponent,
   BarChartHorizontalComponent,
@@ -16,6 +15,7 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import React from "react";
 
 type Props = {};
@@ -90,4 +90,4 @@ const AnalyticsPage = (props: Props) => {
   );
 };
 
-export default WithAuth(AnalyticsPage);
+export default AnalyticsPage;

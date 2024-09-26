@@ -93,4 +93,4 @@ const Dashboard = () => {
   );
 };
 
-export default WithAuth(Dashboard);
+export default Dashboard;

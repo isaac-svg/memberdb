@@ -476,4 +476,4 @@ const MemberPageWrapper = () => {
   );
 };
 
-export default WithAuth(MemberPageWrapper);
+export default MemberPageWrapper;
