@@ -142,7 +142,7 @@ const ChildrenForm = (props: Props) => {
               name="nameOfMother"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>Address</FormLabel>
+                  <FormLabel>Name of mother</FormLabel>
                   <FormControl>
                     <Input placeholder="GA-183-456" {...field} />
                   </FormControl>
@@ -156,7 +156,7 @@ const ChildrenForm = (props: Props) => {
               name="nameOfFather"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>Occupation</FormLabel>
+                  <FormLabel>Name of father</FormLabel>
                   <FormControl>
                     <Input placeholder="Jordan Brown" {...field} />
                   </FormControl>
@@ -172,9 +172,9 @@ const ChildrenForm = (props: Props) => {
               name="mobileNumberOfGuidians"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>Marital Status</FormLabel>
+                  <FormLabel>Mobile number of Guardian</FormLabel>
                   <FormControl>
-                    <Input placeholder="Married/Single" {...field} />
+                    <Input placeholder="02898989898" {...field} />
                   </FormControl>
                   <FormDescription></FormDescription>
                   <FormMessage />
@@ -186,9 +186,9 @@ const ChildrenForm = (props: Props) => {
               name="residentialAddress"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>Spouse Name</FormLabel>
+                  <FormLabel>Residential Address</FormLabel>
                   <FormControl>
-                    <Input placeholder="Raymond Smith" {...field} />
+                    <Input placeholder="GA-123-123" {...field} />
                   </FormControl>
                   <FormDescription></FormDescription>
                   <FormMessage />
