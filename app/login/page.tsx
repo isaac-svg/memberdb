@@ -33,6 +33,10 @@ const LoginForm = () => {
         console.log(username, password);
         await login(username, password);
         console.log("login is called");
+        toast({
+          title: "Authentication ",
+          description: "You have successfully login. ",
+        });
         router.push("/");
       } else {
         await signup(username, password);

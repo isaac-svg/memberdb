@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Pie } from "react-chartjs-2";
 import {
   Area,
@@ -47,6 +47,7 @@ import WeeklyStat from "@/components/sections/weekly-stat";
 import MonthlyStat from "@/components/sections/monthly-stat";
 import ServiceStat from "@/components/sections/service-stat";
 import WithAuth from "@/components/auth/withAuth";
+import { db } from "@/models/db";
 
 const Dashboard = () => {
   const currentDate = new Date().toLocaleDateString("en-US", {
@@ -59,13 +60,23 @@ const Dashboard = () => {
     hour: "2-digit",
     minute: "2-digit",
   });
+  const [user, setUser] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      const auth = localStorage.getItem("authState");
+      if (!auth) return "Not Logged in";
+      const user = JSON.parse(auth);
+      setUser(user.key);
+    })();
+  }, []);
 
   return (
     <div className="min-h-screen bg-muted/40 p-8 first-line:">
       <div className="max-w-7xl mx-auto">
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-muted-foreground mb-2">
-            Welcome, Admin
+            Welcome, {user.toLocaleUpperCase()}
           </h1>
           <p className="text-gray-600">
             {currentDate} | {currentTime}
