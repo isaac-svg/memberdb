@@ -41,7 +41,7 @@ const SignUpForm = () => {
       }
     })();
     console.log("I am here in effect");
-  }, []);
+  });
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);

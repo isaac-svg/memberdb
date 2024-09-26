@@ -17,5 +17,6 @@ const WithAuth = (WrappedComponent: React.ComponentType) => {
     return user ? <WrappedComponent {...props} /> : null;
   };
 };
+WithAuth.displayName = `withauth wraper`;
 
 export default WithAuth;
