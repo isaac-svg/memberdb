@@ -8,9 +8,7 @@ const formSchema = z.object({
     .min(5, "Name must be at least 5 characters")
     .max(50, "Name must be at most 50 characters"),
 
-  dob: z
-    .string({ required_error: "Date of birth is required" })
-    .max(10, "Date of birth must be in a valid format (YYYY-MM-DD)"),
+  dob: z.string().optional(),
 
   gender: z.enum(["Male", "Female", "M", "F", "m", "f", "male", "female"], {
     required_error: "Gender is required",

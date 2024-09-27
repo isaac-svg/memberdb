@@ -24,6 +24,19 @@ import { db, isRegistered } from "@/models/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { convertImageToBase64 } from "@/lib/functions";
 import WithAuth from "@/components/auth/withAuth";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarComponent } from "@/components/ui/calender";
+import { Year } from "@/components/date-picker";
+import DatePicker from "react-datepicker";
+
+import "react-datepicker/dist/react-datepicker.css";
+import { format } from "date-fns";
 
 type Props = {};
 
@@ -36,7 +49,10 @@ const AdultForm = (props: Props) => {
   const [image, setImage] = useState<File | undefined>(undefined);
   const members = useLiveQuery(() => db.chmembers.toArray());
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>();
+  const [dateValue, setDateValue] = useState<string>("");
 
+  const [dateError, setDateError] = useState<boolean>(false);
   async function addMember(values: z.infer<typeof formSchema>) {
     try {
       // Add the new friend!
@@ -61,7 +77,7 @@ const AdultForm = (props: Props) => {
         addMember({ ...values, picture: base64String });
         console.log({ ...values, picture: base64String });
       } else {
-        addMember(values);
+        addMember({ ...values, dob: dateValue });
       }
       form.reset();
       toast({
@@ -70,6 +86,7 @@ const AdultForm = (props: Props) => {
         description: "You can click on the edit button to update the details",
       });
     } catch (error: any) {
+      console.log(error);
       toast({
         title: "Error",
         variant: "destructive",
@@ -94,9 +111,7 @@ const AdultForm = (props: Props) => {
                   <FormControl>
                     <Input placeholder="Isaac Sakyi" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    This is your public display name.
-                  </FormDescription>
+                  <FormDescription></FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -106,11 +121,41 @@ const AdultForm = (props: Props) => {
               name="dob"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>Date of Birth</FormLabel>
-                  <FormControl>
-                    <Input placeholder="2024-09-22" {...field} />
+                  <FormLabel
+                    className={cn(
+                      dateError ? "text-destructive block" : "block"
+                    )}
+                  >
+                    Date of Birth
+                  </FormLabel>
+                  <FormControl className="flex w-full ">
+                    {/* <Input type="text" {...field} onFocus={} /> */}
+                    <DatePicker
+                      // required={true}
+                      onChangeRaw={() => setDateError(false)}
+                      {...field}
+                      className=" !flex h-9 !w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                      selected={startDate}
+                      dateFormat="dd/MM/yyyy"
+                      onChange={(date) => {
+                        setStartDate(date);
+                        setDateValue(format(date!, "MM/dd/yyyy"));
+                      }}
+                      maxDate={new Date()}
+                    />
                   </FormControl>
-                  <FormDescription></FormDescription>
+                  {/* <FormControl> */}
+                  {/* <Input placeholder="2024-09-22" {...field} /> */}
+                  {/* <CalenderFo */}
+                  {/* <input type="date" /> */}
+                  {/* </FormControl> */}
+                  {dateError && (
+                    <FormDescription className="text-[0.8rem] font-medium text-destructive">
+                      {" "}
+                      Date of birth is required and must be of the form
+                      09/09/2000
+                    </FormDescription>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -320,7 +365,7 @@ const AdultForm = (props: Props) => {
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="flex flex-col space-y-1"
+                      className="flex flex-row  flex-wrap"
                     >
                       <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
@@ -358,7 +403,7 @@ const AdultForm = (props: Props) => {
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="flex flex-col space-y-1"
+                      className="flex flex-row  flex-wrap"
                     >
                       <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
@@ -420,7 +465,24 @@ const AdultForm = (props: Props) => {
               )}
             />
           </div>
-          <Button type="submit" onClick={() => console.log("first")}>
+          <Button
+            type="submit"
+            onClick={() => {
+              const dateRegex =
+                /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+              console.log(dateValue, "FULL HERE");
+
+              if (!dateValue) {
+                console.log(dateValue, "EMPTY HERE");
+                setDateError(true);
+                return;
+              }
+              if (!dateRegex.test(dateValue.toString())) {
+                setDateError(true);
+                return;
+              }
+            }}
+          >
             Add Member
           </Button>
         </form>

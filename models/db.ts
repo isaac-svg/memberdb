@@ -14,7 +14,7 @@ export interface Member {
   name: string;
   bibleStudyGroup: "love" | "grace" | "peace" | "hope" | "mercy" | "joy";
   role: "elder" | "member" | "deacon";
-  dob: string;
+  dob?: string;
   gender: "Male" | "Female" | "M" | "F" | "m" | "f" | "male" | "female";
   cell: string;
   residentialAddress: string;
@@ -111,20 +111,30 @@ export const isRegistered = async (
 ) => {
   let user;
 
+  console.log("i am here in isRegistered");
   if (userType === "adult") {
-    user = await db.chmembers.get({
-      username: data.name,
-      dob: data.dob,
-    });
+    user = await db.chmembers
+      .where("name")
+      .equals(data.name!)
+      .and(
+        (member) =>
+          member.dob === data.dob! && member.ghanaCardID === data.ghanaCardID
+      )
+      .first();
   }
 
   if (userType === "child") {
-    user = await db.child.get({
-      name: data.name,
-      dob: data.dob,
-    });
+    user = await db.child
+      .where("name")
+      .equals(data.name!)
+      .and(
+        (child) =>
+          child.dob === data.dob! &&
+          data.residentialAddress === child.residentialAddress
+      )
+      .first();
   }
-
+  console.log(user, "user");
   // Return true if user exists, false otherwise
   return !!user;
 };
