@@ -104,6 +104,30 @@ export const setUserSignedUp = async () => {
   await db.appState.put({ key: "isSignedUp", isSignedUp: true });
 };
 
+// Function to check if a user has not been registered already
+export const isRegistered = async (
+  data: Partial<Child | Member>,
+  userType: "adult" | "child"
+) => {
+  let user;
+
+  if (userType === "adult") {
+    user = await db.chmembers.get({
+      username: data.name,
+      dob: data.dob,
+    });
+  }
+
+  if (userType === "child") {
+    user = await db.child.get({
+      name: data.name,
+      dob: data.dob,
+    });
+  }
+
+  // Return true if user exists, false otherwise
+  return !!user;
+};
 // Function to verify a user login
 export const verifyUser = async (
   username: string,

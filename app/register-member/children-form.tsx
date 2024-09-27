@@ -20,7 +20,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/hooks/use-toast";
 import { useRef, useState } from "react";
-import { db } from "@/models/db";
+import { db, isRegistered } from "@/models/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { convertImageToBase64 } from "@/lib/functions";
 import WithAuth from "@/components/auth/withAuth";
@@ -52,20 +52,31 @@ const ChildrenForm = (props: Props) => {
   async function onSubmit(values: z.infer<typeof childrenFormSchema>) {
     console.log("values");
 
-    if (image?.name) {
-      const base64String = await convertImageToBase64(image);
-      console.log(image.name);
-      addMember({ ...values, picture: base64String });
-      console.log({ ...values, picture: base64String });
-    } else {
-      addMember(values);
-    }
+    try {
+      if (await isRegistered(values, "child"))
+        throw new Error("User is already registered");
 
-    toast({
-      title: "Member added to DB successfully",
-      variant: "default",
-      description: "You can click on the edit button to update the details",
-    });
+      if (image?.name) {
+        const base64String = await convertImageToBase64(image);
+        console.log(image.name);
+        addMember({ ...values, picture: base64String });
+        console.log({ ...values, picture: base64String });
+      } else {
+        addMember(values);
+      }
+
+      toast({
+        title: "Member added to DB successfully",
+        variant: "default",
+        description: "You can click on the edit button to update the details",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: error.message,
+      });
+    }
   }
   return (
     <FormProvider {...form}>

@@ -20,7 +20,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/hooks/use-toast";
 import { useRef, useState } from "react";
-import { db } from "@/models/db";
+import { db, isRegistered } from "@/models/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { convertImageToBase64 } from "@/lib/functions";
 import WithAuth from "@/components/auth/withAuth";
@@ -53,6 +53,8 @@ const AdultForm = (props: Props) => {
     console.log("values");
 
     try {
+      if (await isRegistered(values, "adult"))
+        throw new Error("User is already registered");
       if (image?.name) {
         const base64String = await convertImageToBase64(image);
         console.log(image.name);
@@ -70,8 +72,8 @@ const AdultForm = (props: Props) => {
     } catch (error: any) {
       toast({
         title: "Error",
-        variant: "default",
-        description: "Creatin member failed. Please make sure t",
+        variant: "destructive",
+        description: error.message,
       });
     }
   }
