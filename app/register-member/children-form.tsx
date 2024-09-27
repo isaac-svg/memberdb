@@ -315,9 +315,9 @@ const ChildrenForm = (props: Props) => {
                       </FormItem>
                       <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
-                          <RadioGroupItem value="grace" />
+                          <RadioGroupItem value="mercy" />
                         </FormControl>
-                        <FormLabel className="font-normal">Grace</FormLabel>
+                        <FormLabel className="font-normal">Mercy</FormLabel>
                       </FormItem>
                     </RadioGroup>
                   </FormControl>
