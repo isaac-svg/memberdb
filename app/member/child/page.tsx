@@ -69,18 +69,25 @@ const MemberPage = () => {
   }, [member, reset]);
 
   const onSubmit = async (values: z.infer<typeof childrenFormSchema>) => {
-    if (image) {
-      const base64String = await convertImageToBase64(image);
-      await db
-        .table("chmembers")
-        .update(Number(ID), { ...values, picture: base64String });
-    } else {
-      await db.table("chmembers").update(Number(ID), values);
+    try {
+      if (image) {
+        const base64String = await convertImageToBase64(image);
+        await db
+          .table("child")
+          .update(Number(ID), { ...values, picture: base64String });
+      } else {
+        await db.table("child").update(Number(ID), values);
+      }
+      toast({
+        title: "Member updated successfully",
+        description: "Changes have been saved.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Update Error",
+        description: `${error?.message} Please make sure you have enough disk storage`,
+      });
     }
-    toast({
-      title: "Member updated successfully",
-      description: "Changes have been saved.",
-    });
   };
 
   if (!member)
@@ -292,6 +299,7 @@ const MemberPage = () => {
                         ref={fileRef}
                         type="file"
                         accept=".jpg, .jpeg, .png"
+                        disabled={disabled}
                         onChange={(e) => {
                           setImage(e.target?.files?.[0]);
                           const a = e.target?.files?.[0];
@@ -351,6 +359,7 @@ const MemberPage = () => {
                     <FormControl>
                       {/* <Input placeholder="Deacon" {...field} /> */}
                       <RadioGroup
+                        disabled={disabled}
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                         className="flex flex-row  space-x-1"
