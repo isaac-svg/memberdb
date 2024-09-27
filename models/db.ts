@@ -12,15 +12,15 @@ export interface User {
 export interface Member {
   id: number;
   name: string;
-  bibleStudyGroup: "love" | "grace" | "peace" | "hope" | "mercy" | "joy";
-  role: "elder" | "member" | "deacon";
+  bibleStudyGroup: string;
+  role: string;
   dob?: string;
-  gender: "Male" | "Female" | "M" | "F" | "m" | "f" | "male" | "female";
+  gender: string;
   cell: string;
   residentialAddress: string;
   mobile: string;
   maritalStatus: string;
-  spouseName: string;
+  spouseName?: string;
   numberOfChildren: string;
   numberOfOtherHouseholdMembers: string;
   occupation: string;
@@ -35,16 +35,16 @@ export interface Child {
   name: string;
   dob: string;
   age: string;
-  gender: "Male" | "Female" | "M" | "F" | "m" | "f" | "male" | "female";
+  gender: string;
   nameOfMother: string;
   nameOfFather: string;
   residentialAddress: string;
-  mobileNumberOfGuidians: string;
+  mobileNumberOfGuidians?: string;
   contactPerson: string;
   Remarks: string;
-  ghanaCardID: string;
+  ghanaCardID?: string;
   picture?: string;
-  bibleStudyGroup: "love" | "grace" | "peace" | "hope" | "mercy" | "joy" | "";
+  bibleStudyGroup: string;
 }
 
 // Interface to track signup state
@@ -111,7 +111,7 @@ export const isRegistered = async (
 ) => {
   let user;
 
-  console.log("i am here in isRegistered");
+  console.log("i am here in isRegistered", data);
   if (userType === "adult") {
     user = await db.chmembers
       .where("name")

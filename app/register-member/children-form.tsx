@@ -24,18 +24,41 @@ import { db, isRegistered } from "@/models/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { convertImageToBase64 } from "@/lib/functions";
 import WithAuth from "@/components/auth/withAuth";
+import DatePicker from "react-datepicker";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 type Props = {};
 
 const ChildrenForm = (props: Props) => {
   const form = useForm<z.infer<typeof childrenFormSchema>>({
     resolver: zodResolver(childrenFormSchema),
+    // defaultValues: {
+    //   name: "Child Name", // Example child's name
+    //   dob: "2015-07-15", // Example date of birth (YYYY-MM-DD)
+    //   age: "8", // Example age
+    //   gender: "Male", // Example gender
+    //   nameOfMother: "Mother Name", // Example mother's name
+    //   cell: "0241234567", // Example cell number (optional)
+    //   nameOfFather: "Father Name", // Example father's name
+    //   residentialAddress: "GA-183-4567", // Example GhanaPost GPS address
+    //   mobileNumberOfGuidians: "0248765432", // Example mobile number of guardians (optional)
+    //   contactPerson: "Aunt Alice", // Example contact person
+    //   Remarks: "Child is very active in group discussions.", // Example remarks
+    //   ghanaCardID: "GHA-987654321-0", // Example Ghana Card ID (optional)
+    //   picture: null, // Assuming no picture is selected by default
+    //   bibleStudyGroup: "hope",
+    // },
   });
   const { toast } = useToast();
 
   const [image, setImage] = useState<File | undefined>(undefined);
   const members = useLiveQuery(() => db.child.toArray());
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>();
+  const [dateValue, setDateValue] = useState<string>("");
+  const [dateError, setDateError] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   async function addMember(values: z.infer<typeof childrenFormSchema>) {
     try {
@@ -53,18 +76,56 @@ const ChildrenForm = (props: Props) => {
     console.log("values");
 
     try {
-      if (await isRegistered(values, "child"))
+      const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+      console.log(dateValue, "FULL HERE");
+
+      if (!dateValue) {
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: "Date of birth is a required field",
+        });
+        setDateError(true);
+        return;
+      }
+      if (!dateRegex.test(dateValue.toString())) {
+        setDateError(true);
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: "Plase use this format dd/mm/yyyy for the date of birth",
+        });
+        return;
+      }
+      if (await isRegistered({ ...values, dob: dateValue }, "child"))
         throw new Error("User is already registered");
 
       if (image?.name) {
         const base64String = await convertImageToBase64(image);
         console.log(image.name);
-        addMember({ ...values, picture: base64String });
+        addMember({ ...values, picture: base64String, dob: dateValue });
         console.log({ ...values, picture: base64String });
       } else {
-        addMember(values);
+        addMember({ ...values, dob: dateValue });
       }
 
+      // @ts-ignore
+      form.reset({
+        name: "",
+        contactPerson: "",
+        ghanaCardID: "",
+        picture: "",
+        dob: "",
+        residentialAddress: "",
+        Remarks: "",
+        bibleStudyGroup: "",
+        age: "",
+        cell: "",
+        gender: "",
+        mobileNumberOfGuidians: "",
+        nameOfFather: "",
+        nameOfMother: "",
+      });
       toast({
         title: "Member added to DB successfully",
         variant: "default",
@@ -107,11 +168,42 @@ const ChildrenForm = (props: Props) => {
               name="dob"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>Date of Birth</FormLabel>
-                  <FormControl>
-                    <Input placeholder="2024-09-22" {...field} />
+                  <FormLabel
+                    className={cn(
+                      dateError ? "text-destructive block" : "block"
+                    )}
+                  >
+                    Date of Birth
+                  </FormLabel>
+                  <FormControl className="flex w-full ">
+                    {/* <Input type="text" {...field} onFocus={} /> */}
+                    <DatePicker
+                      // required={true}
+                      onChangeRaw={() => setDateError(false)}
+                      {...field}
+                      className=" !flex h-9 !w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                      placeholderText="dd/MM/yyyy"
+                      selected={startDate}
+                      dateFormat="dd/MM/yyyy"
+                      onChange={(date) => {
+                        setStartDate(date);
+                        setDateValue(format(date!, "MM/dd/yyyy"));
+                      }}
+                      maxDate={new Date()}
+                    />
                   </FormControl>
-                  <FormDescription></FormDescription>
+                  {/* <FormControl> */}
+                  {/* <Input placeholder="2024-09-22" {...field} /> */}
+                  {/* <CalenderFo */}
+                  {/* <input type="date" /> */}
+                  {/* </FormControl> */}
+                  {dateError && (
+                    <FormDescription className="text-[0.8rem] font-medium text-destructive">
+                      {" "}
+                      Date of birth is required and must be of the form
+                      09/09/2000
+                    </FormDescription>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -354,7 +446,24 @@ const ChildrenForm = (props: Props) => {
               )}
             />
           </div>
-          <Button type="submit" onClick={() => console.log("first")}>
+          <Button
+            type="submit"
+            onClick={() => {
+              const dateRegex =
+                /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+              console.log(dateValue, "FULL HERE");
+
+              if (!dateValue) {
+                console.log(dateValue, "EMPTY HERE");
+                setDateError(true);
+                return;
+              }
+              if (!dateRegex.test(dateValue.toString())) {
+                setDateError(true);
+                return;
+              }
+            }}
+          >
             Add Member
           </Button>
         </form>

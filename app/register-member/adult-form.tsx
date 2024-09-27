@@ -24,7 +24,7 @@ import { db, isRegistered } from "@/models/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { convertImageToBase64 } from "@/lib/functions";
 import WithAuth from "@/components/auth/withAuth";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, LoaderCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Popover,
@@ -43,6 +43,25 @@ type Props = {};
 const AdultForm = (props: Props) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    // defaultValues: {
+    //   name: "John Doe",
+    //   // dob: "10/01/2000", // Example date of birth
+    //   gender: "Male", // Default gender
+    //   cell: "123456789", // Example cell number
+    //   residentialAddress: "GA-183-4567", // Example address
+    //   mobile: "0591234567", // Example mobile number
+    //   maritalStatus: "Married",
+    //   spouseName: "Jane Doe",
+    //   numberOfChildren: "2", // Default number of children
+    //   numberOfOtherHouseholdMembers: "3", // Default number of other members
+    //   occupation: "Software Engineer",
+    //   contactPerson: "Alice Smith",
+    //   Remarks: "Looking forward to connecting with the community.",
+    //   ghanaCardID: "GHA-123456789-1", // Example Ghana Card ID
+    //   picture: null, // Assuming no picture is selected by default
+    //   role: "member", // Default role
+    //   bibleStudyGroup: "love",
+    // },
   });
   const { toast } = useToast();
 
@@ -51,35 +70,72 @@ const AdultForm = (props: Props) => {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [startDate, setStartDate] = useState<Date | null>();
   const [dateValue, setDateValue] = useState<string>("");
-
+  const [isLoading, setIsLoading] = useState(false);
   const [dateError, setDateError] = useState<boolean>(false);
   async function addMember(values: z.infer<typeof formSchema>) {
-    try {
-      // Add the new friend!
-      const nen = await db.chmembers.add({
-        ...values,
-      });
-      console.log({ ...values }, "VALUES");
-      console.log(nen, "-", members);
-    } catch (error) {
-      // setStatus(`Failed to add ${name}: ${error}`);
-    }
+    // Add the new friend!
+    console.log(values, "WHAT IS BEING ADDED");
+    const nen = await db.chmembers.add({
+      ...values,
+    });
+    // console.log({ ...values }, "VALUES");
+    // console.log(nen, "-", members);
   }
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("values");
-
     try {
-      if (await isRegistered(values, "adult"))
+      const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+      console.log(dateValue, "FULL HERE");
+
+      if (!dateValue) {
+        setDateError(true);
+        toast({
+          title: "Form Error",
+          variant: "destructive",
+          description: "Date of birth is required ",
+        });
+        return;
+      }
+      if (!dateRegex.test(dateValue.toString())) {
+        setDateError(true);
+        toast({
+          title: "Form Error",
+          variant: "destructive",
+          description: "Plase use this format dd/mm/yyyy for the date of birth",
+        });
+        return;
+      }
+      setIsLoading(true);
+
+      if (await isRegistered({ ...values, dob: dateValue }, "adult"))
         throw new Error("User is already registered");
       if (image?.name) {
         const base64String = await convertImageToBase64(image);
         console.log(image.name);
-        addMember({ ...values, picture: base64String });
+        addMember({ ...values, picture: base64String, dob: dateValue });
         console.log({ ...values, picture: base64String });
       } else {
+        console.log({ dob: dateValue });
         addMember({ ...values, dob: dateValue });
       }
-      form.reset();
+      setIsLoading(false);
+      // @ts-ignore
+      form.reset({
+        name: "",
+        contactPerson: "",
+        ghanaCardID: "",
+        occupation: "",
+        numberOfChildren: "",
+        numberOfOtherHouseholdMembers: "",
+        mobile: "",
+        picture: "",
+        dob: "",
+        residentialAddress: "",
+        Remarks: "",
+        maritalStatus: "",
+        gender: "",
+        role: "",
+        bibleStudyGroup: "",
+      });
       toast({
         title: "Member added to DB successfully",
         variant: "default",
@@ -92,6 +148,7 @@ const AdultForm = (props: Props) => {
         variant: "destructive",
         description: error.message,
       });
+      setIsLoading(false);
     }
   }
   return (
@@ -135,6 +192,7 @@ const AdultForm = (props: Props) => {
                       onChangeRaw={() => setDateError(false)}
                       {...field}
                       className=" !flex h-9 !w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                      placeholderText="dd/MM/yyyy"
                       selected={startDate}
                       dateFormat="dd/MM/yyyy"
                       onChange={(date) => {
@@ -483,7 +541,11 @@ const AdultForm = (props: Props) => {
               }
             }}
           >
-            Add Member
+            {isLoading ? (
+              <div className="spinner-border animate-spin inline-block w-4 h-4 border rounded-full"></div>
+            ) : (
+              "Add Member"
+            )}
           </Button>
         </form>
       </Form>

@@ -13,7 +13,7 @@ const childrenFormSchema = z.object({
     .max(10, "Date of birth must be in a valid format (YYYY-MM-DD)"),
   age: z.string({ required_error: "Age is required" }),
 
-  gender: z.enum(["Male", "Female", "M", "F", "m", "f", "male", "female"], {
+  gender: z.string({
     required_error: "Gender is required",
   }),
   nameOfMother: z
@@ -32,9 +32,7 @@ const childrenFormSchema = z.object({
       /^[A-Z]{2}-\d{3,4}-\d{3,4}$/,
       "Residential address must be a valid GhanaPost GPS address (e.g., GA-183-4567)"
     ),
-  mobileNumberOfGuidians: z.string({
-    required_error: "Mobile number is required",
-  }),
+  mobileNumberOfGuidians: z.string().optional(),
   contactPerson: z
     .string({ required_error: "Contact person is required" })
     .min(5, "Contact person must be at least 2 characters")
@@ -44,18 +42,10 @@ const childrenFormSchema = z.object({
     .string({ required_error: "Remarks are required" })
     .max(300, "Remarks must be at most 50 characters"),
 
-  ghanaCardID: z.string(),
+  ghanaCardID: z.string().optional(),
 
   picture: z.any(),
-  bibleStudyGroup: z.enum([
-    "love",
-    "grace",
-    "peace",
-    "hope",
-    "mercy",
-    "joy",
-    "",
-  ]),
+  bibleStudyGroup: z.string(),
 });
 
 export default childrenFormSchema;

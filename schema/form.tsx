@@ -10,7 +10,7 @@ const formSchema = z.object({
 
   dob: z.string().optional(),
 
-  gender: z.enum(["Male", "Female", "M", "F", "m", "f", "male", "female"], {
+  gender: z.string({
     required_error: "Gender is required",
   }),
 
@@ -34,7 +34,7 @@ const formSchema = z.object({
     .min(2, "Marital status must be at least 2 characters")
     .max(50, "Marital status must be at most 50 characters"),
 
-  spouseName: z.string(),
+  spouseName: z.string().optional(),
 
   numberOfChildren: z
     .string({ required_error: "This field is required" })
@@ -65,10 +65,12 @@ const formSchema = z.object({
     ),
 
   picture: z.any(),
-  role: z.enum(["elder", "member", "deacon"], {
-    required_error: "Gender is required",
+  role: z.string({
+    required_error: "Role is required",
   }),
-  bibleStudyGroup: z.enum(["love", "grace", "peace", "hope", "mercy", "joy"]),
+  bibleStudyGroup: z.string({
+    required_error: "Bible study group is required",
+  }),
 });
 
 export default formSchema;
