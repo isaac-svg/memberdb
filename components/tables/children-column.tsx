@@ -43,7 +43,7 @@ export const childrenColumns: ColumnDef<Child>[] = [
     accessorKey: "picture",
     header: "Picture",
     cell: ({ row }) => (
-      <Link href={`/child/?id=${row.original.id}`}>
+      <Link href={`/member/child/?id=${row.original.id}`}>
         <img
           className="aspect-square rounded-md object-cover"
           src={row.original.picture ?? "/images/placeholder.svg"}
@@ -150,7 +150,9 @@ export const childrenColumns: ColumnDef<Child>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href={`/child/?id=${child.id}`}>View Full Details</Link>
+              <Link href={`/member/child/?id=${child.id}`}>
+                View Full Details
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>View Location</DropdownMenuItem>
           </DropdownMenuContent>

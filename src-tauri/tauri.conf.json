@@ -63,7 +63,7 @@
       },
       "resources": [],
       "shortDescription": "",
-      "targets": ["deb", "appimage", "msi"],
+      "targets": ["deb", "appimage", "msi", "nsis"],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
