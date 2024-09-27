@@ -52,20 +52,28 @@ const AdultForm = (props: Props) => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("values");
 
-    if (image?.name) {
-      const base64String = await convertImageToBase64(image);
-      console.log(image.name);
-      addMember({ ...values, picture: base64String });
-      console.log({ ...values, picture: base64String });
-    } else {
-      addMember(values);
+    try {
+      if (image?.name) {
+        const base64String = await convertImageToBase64(image);
+        console.log(image.name);
+        addMember({ ...values, picture: base64String });
+        console.log({ ...values, picture: base64String });
+      } else {
+        addMember(values);
+      }
+      form.reset();
+      toast({
+        title: "Member added to DB successfully",
+        variant: "default",
+        description: "You can click on the edit button to update the details",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        variant: "default",
+        description: "Creatin member failed. Please make sure t",
+      });
     }
-
-    toast({
-      title: "Member added to DB successfully",
-      variant: "default",
-      description: "You can click on the edit button to update the details",
-    });
   }
   return (
     <FormProvider {...form}>
