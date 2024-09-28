@@ -1,5 +1,7 @@
 import { writeTextFile } from "@tauri-apps/api/fs";
 import { save } from "@tauri-apps/api/dialog";
+import Papa from "papaparse";
+import { db, Member } from "@/models/db";
 
 export function convertImageToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -59,3 +61,30 @@ export async function exportTableAsCSV(data: any[]) {
     console.log("File saving was canceled");
   }
 }
+
+// Function to parse CSV data
+export const parseCSV = (csvText: string) => {
+  return new Promise((resolve, reject) => {
+    Papa.parse(csvText, {
+      header: true, // Treat the first row as the header
+      skipEmptyLines: true,
+      complete: (results) => {
+        resolve(results.data); // This returns an array of objects
+      },
+      error: (error: any) => reject(error),
+    });
+  });
+};
+
+export const handleCSVUpload = async (csvText: string) => {
+  try {
+    const parsedData = await parseCSV(csvText);
+
+    // @ts-ignore
+    await db.chmembers.bulkAdd(parsedData);
+
+    console.log("Data successfully saved to IndexedDB");
+  } catch (error) {
+    console.error("Error uploading CSV data", error);
+  }
+};

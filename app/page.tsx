@@ -48,6 +48,8 @@ import MonthlyStat from "@/components/sections/monthly-stat";
 import ServiceStat from "@/components/sections/service-stat";
 import WithAuth from "@/components/auth/withAuth";
 import { db } from "@/models/db";
+import { parseCSV } from "@/lib/functions";
+import { CSVUpload } from "@/components/csv/upload-csv";
 
 const Dashboard = () => {
   const currentDate = new Date().toLocaleDateString("en-US", {
@@ -68,9 +70,22 @@ const Dashboard = () => {
       if (!auth) return "Not Logged in";
       const user = JSON.parse(auth);
       setUser(user.key);
+      // console.log(await db.dynamicmemner.toArray());
     })();
   }, []);
 
+  const handleCSVUpload = async (csvText: string) => {
+    try {
+      const parsedData = await parseCSV(csvText);
+      console.log(parsedData);
+      // @ts-ignore
+      await db.dynamicmemner.bulkAdd(parsedData);
+
+      console.log("Data successfully saved to IndexedDB");
+    } catch (error) {
+      console.error("Error uploading CSV data", error);
+    }
+  };
   return (
     <div className="min-h-screen bg-muted/40 p-8 first-line:">
       <div className="max-w-7xl mx-auto">
@@ -82,7 +97,7 @@ const Dashboard = () => {
             {currentDate} | {currentTime}
           </p>
         </header>
-
+        <CSVUpload onUpload={handleCSVUpload} />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <WeeklyStat />
           <MonthlyStat />
