@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { addTithe, getMember, getUser } from "@/models/db";
+import { useToast } from "@/components/hooks/use-toast";
 type Props = {};
 
 const AddTithe = (props: Props) => {
@@ -31,9 +33,33 @@ const AddTithe = (props: Props) => {
   const form = useForm<z.infer<typeof titheSchema>>({
     resolver: zodResolver(titheSchema),
   });
-
+  const { toast } = useToast();
   const handleSubmit = async (values: z.infer<typeof titheSchema>) => {
-    console.log(values);
+    // console.log(values);
+    if (values.date == undefined) {
+      values.date = new Date()
+        .toLocaleDateString("en-CA", {
+          year: "numeric",
+          month: "2-digit",
+          day: "numeric",
+        })
+        .replaceAll("/", "-");
+    }
+    const user = await getMember(values.titherName.trim());
+    if (user) {
+      addTithe(values, user.id);
+      toast({
+        title: "Success",
+        description: "Tithe added successfuly",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description:
+          "No user with this name is found!!!\nPlease check the spelling of the name.",
+        variant: "destructive",
+      });
+    }
   };
   return (
     <div className="my-8">

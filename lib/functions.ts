@@ -3,6 +3,8 @@ import { save } from "@tauri-apps/api/dialog";
 import Papa from "papaparse";
 import { db, Member } from "@/models/db";
 
+// Store the image Blob directly
+
 export function convertImageToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -92,3 +94,18 @@ export const handleCSVUpload = async (csvText: string) => {
 export function generateUUID() {
   return crypto.randomUUID();
 }
+
+//get date by month
+export const getDate = (month: number) => {
+  const startDate = new Date();
+  startDate.setMonth(startDate.getMonth() - month);
+
+  const lastMonth = startDate
+    .toLocaleDateString("en-CA", {
+      year: "numeric",
+      month: "2-digit",
+      day: "numeric",
+    })
+    .replaceAll("/", "-");
+  return lastMonth;
+};

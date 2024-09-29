@@ -1,6 +1,8 @@
 import { hashPassword, verifyPassword } from "@/lib/auth";
 import { generateUUID } from "@/lib/functions";
 import formSchema from "@/schema/form";
+import offertorySchema from "@/schema/offertory";
+import titheSchema from "@/schema/tithe";
 import Dexie, { type EntityTable, Table } from "dexie";
 import { z } from "zod";
 
@@ -13,8 +15,7 @@ export interface User {
 
 // Member interface
 export interface Member {
-  id: number;
-  uuid: string;
+  id: string;
   name: string;
   bibleStudyGroup: string;
   role: string;
@@ -32,25 +33,23 @@ export interface Member {
   Remarks: string;
   ghanaCardID: string;
   picture?: string;
+  titheId: string[];
 }
 
 export interface Tithe {
-  uuid: string;
   id: string;
-  titherName: string;
-  titherMobileNumber?: string;
+  memberId: string;
   amount: number;
-  date: Date;
+  date?: string | number | readonly string[] | undefined;
 }
-export interface offering {
-  uuid: string;
+export interface Offertory {
   id: string;
-  date: Date;
+  date?: string | number | readonly string[] | undefined;
   amount: number;
+  serviceType: string;
 }
 export interface Child {
-  id: number;
-  uuid: string;
+  id: string;
   name: string;
   dob: string;
   age: string;
@@ -77,27 +76,58 @@ const db = new Dexie("ChurchDataBase") as Dexie & {
   chmembers: EntityTable<Member, "id">;
   child: EntityTable<Child, "id">;
   users: Table<User, number>; // Typing for the "users" table
-  appState: Table<AppState, string>; // Typing for tracking signup state
+  appState: Table<AppState, string>;
+  offertory: Table<Offertory, "id">;
+  tithe: Table<Tithe, "id">;
 };
 
 // Schema declaration
-db.version(1.26).stores({
+db.version(1.28).stores({
   child:
     "++id, name, dob, age, gender, nameOfMother, nameOfFather, residentialAddress, mobileNumberOfGuidians, contactPerson, Remarks, ghanaCardID, picture, bibleStudyGroup",
   chmembers:
-    "++id, name, mobile, ghanaCardID, occupation, numberOfOtherHouseholdMembers, gender, bibleStudyGroup, residentialAddress, cell, Remarks, maritalStatus, contactPerson, spouseName, picture, numberOfChildren, dob, role", // primary key "id"
+    "&id, name, mobile, ghanaCardID, occupation, numberOfOtherHouseholdMembers, gender, bibleStudyGroup, residentialAddress, cell, Remarks, maritalStatus, contactPerson, spouseName, picture, numberOfChildren, dob, role", // primary key "id"
   users: "++id, username, password",
   appState: "key",
-  tithe: "++id, uuid, amount, date, titherName, titherMobileNumber",
+  tithe: "&id, amount, date, memberId",
+  offertory: "&id, date, amount, serviceType",
 });
 
 export async function addMember(values: z.infer<typeof formSchema>) {
-  const uuid = generateUUID();
-
   const nen = await db.chmembers.add({
     ...values,
-    uuid: uuid,
+    id: generateUUID(),
+    titheId: [],
   });
+}
+export async function addTithe(
+  values: z.infer<typeof titheSchema>,
+  memberId: string
+) {
+  const titheId = await db.tithe.add({
+    id: generateUUID(),
+    ...values,
+    memberId,
+  });
+  const member = await db.chmembers.get(memberId);
+
+  if (member) {
+    const updatedTitheIds = member.titheId
+      ? [...member.titheId, titheId]
+      : [titheId];
+
+    await db.chmembers.update(memberId, { titheId: updatedTitheIds });
+    console.log("Member updated with new tithe ID:", updatedTitheIds);
+  }
+}
+
+export async function addOffertory(values: z.infer<typeof offertorySchema>) {
+  console.log(values, "add Offertory");
+  const a = await db.offertory.add({
+    id: generateUUID(),
+    ...values,
+  });
+  console.log(a);
 }
 // Function to add a new user
 export const addUser = async (username: string, password: string) => {
@@ -115,6 +145,9 @@ export const addUser = async (username: string, password: string) => {
 // Function to get a user by username
 export async function getUser(username: string): Promise<User | undefined> {
   return await db.users.get({ username });
+}
+export async function getMember(username: string): Promise<Member | undefined> {
+  return await db.chmembers.get({ name: username });
 }
 
 // Function to check if a user has signed up
