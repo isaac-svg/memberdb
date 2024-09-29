@@ -88,3 +88,7 @@ export const handleCSVUpload = async (csvText: string) => {
     console.error("Error uploading CSV data", error);
   }
 };
+
+export function generateUUID() {
+  return crypto.randomUUID();
+}

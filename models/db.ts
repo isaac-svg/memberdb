@@ -1,5 +1,8 @@
 import { hashPassword, verifyPassword } from "@/lib/auth";
+import { generateUUID } from "@/lib/functions";
+import formSchema from "@/schema/form";
 import Dexie, { type EntityTable, Table } from "dexie";
+import { z } from "zod";
 
 // User interface
 export interface User {
@@ -11,6 +14,7 @@ export interface User {
 // Member interface
 export interface Member {
   id: number;
+  uuid: string;
   name: string;
   bibleStudyGroup: string;
   role: string;
@@ -30,8 +34,23 @@ export interface Member {
   picture?: string;
 }
 
+export interface Tithe {
+  uuid: string;
+  id: string;
+  titherName: string;
+  titherMobileNumber?: string;
+  amount: number;
+  date: Date;
+}
+export interface offering {
+  uuid: string;
+  id: string;
+  date: Date;
+  amount: number;
+}
 export interface Child {
   id: number;
+  uuid: string;
   name: string;
   dob: string;
   age: string;
@@ -62,15 +81,24 @@ const db = new Dexie("ChurchDataBase") as Dexie & {
 };
 
 // Schema declaration
-db.version(1.25).stores({
+db.version(1.26).stores({
   child:
     "++id, name, dob, age, gender, nameOfMother, nameOfFather, residentialAddress, mobileNumberOfGuidians, contactPerson, Remarks, ghanaCardID, picture, bibleStudyGroup",
   chmembers:
     "++id, name, mobile, ghanaCardID, occupation, numberOfOtherHouseholdMembers, gender, bibleStudyGroup, residentialAddress, cell, Remarks, maritalStatus, contactPerson, spouseName, picture, numberOfChildren, dob, role", // primary key "id"
-  users: "++id, username, password", // primary key "id"
-  appState: "key", // single key-value store to track signup state
+  users: "++id, username, password",
+  appState: "key",
+  tithe: "++id, uuid, amount, date, titherName, titherMobileNumber",
 });
 
+export async function addMember(values: z.infer<typeof formSchema>) {
+  const uuid = generateUUID();
+
+  const nen = await db.chmembers.add({
+    ...values,
+    uuid: uuid,
+  });
+}
 // Function to add a new user
 export const addUser = async (username: string, password: string) => {
   const user = await getUser(username);

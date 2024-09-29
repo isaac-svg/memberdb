@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import {
   Bell,
   CircleUser,
+  Gem,
   Home,
   LineChart,
   Menu,
@@ -110,7 +111,13 @@ const RootLayout = ({
                   6
                 </Badge> */}
                       </Link>
-
+                      <Link
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                        href={"/tithe"}
+                      >
+                        <Gem className="h-4 w-4" />
+                        Tithes and offerings
+                      </Link>
                       <Link
                         href="/analytics"
                         className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"

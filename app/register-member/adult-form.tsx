@@ -20,7 +20,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/hooks/use-toast";
 import { useRef, useState } from "react";
-import { db, isRegistered } from "@/models/db";
+import { addMember, db, isRegistered } from "@/models/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { convertImageToBase64 } from "@/lib/functions";
 import WithAuth from "@/components/auth/withAuth";
@@ -72,15 +72,7 @@ const AdultForm = (props: Props) => {
   const [dateValue, setDateValue] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [dateError, setDateError] = useState<boolean>(false);
-  async function addMember(values: z.infer<typeof formSchema>) {
-    // Add the new friend!
-    console.log(values, "WHAT IS BEING ADDED");
-    const nen = await db.chmembers.add({
-      ...values,
-    });
-    // console.log({ ...values }, "VALUES");
-    // console.log(nen, "-", members);
-  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;

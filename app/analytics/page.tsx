@@ -7,6 +7,7 @@ import {
   LineChartComponent,
   LineChartMultipleComponent,
 } from "@/components/charts/line";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Activity,
@@ -79,7 +80,16 @@ const AnalyticsPage = (props: Props) => {
         </Card>
       </div>
       <div className="flex w-full">
-        <LineChartComponent />
+        <LineChartComponent
+          data={[
+            { date: "2024-04-01", value: 222 },
+            { date: "2024-04-02", value: 97 },
+            { date: "2024-09-12", value: 300 },
+          ]}
+          title="Attendance analytics"
+          description="Attendance per month for the last three mongths"
+          averageMesage="Average monthly attendance"
+        />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         <BarChartComponent />
